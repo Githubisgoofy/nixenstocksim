@@ -138,7 +138,7 @@
     </div>
     <div style="display:flex; align-items:center; gap:15px;">
         <span id="saveInd" style="font-size:0.75rem; color:#10b981; font-weight:700; opacity:0; transition:opacity 0.5s;"><i class="fas fa-check"></i> SAVED</span>
-        <button class="btn btn-reset" onclick="resetAll()">Reset System</button>
+        <button type="button" class="btn btn-reset" onclick="resetAll()">Reset System</button>
     </div>
 </div>
 
@@ -187,12 +187,12 @@
         </div>
         
         <div class="tabs">
-            <button class="tab-btn active" onclick="setTab('all', event)">All Assets</button>
-            <button class="tab-btn" onclick="setTab('tech', event)">Technology</button>
-            <button class="tab-btn" onclick="setTab('finance', event)">Finance</button>
-            <button class="tab-btn" onclick="setTab('consumer', event)">Retail</button>
-            <button class="tab-btn" onclick="setTab('auto', event)">Auto</button>
-            <button class="tab-btn" onclick="setTab('crypto', event)">Digital</button>
+            <button type="button" class="tab-btn active" onclick="setTab('all', event)">All Assets</button>
+            <button type="button" class="tab-btn" onclick="setTab('tech', event)">Technology</button>
+            <button type="button" class="tab-btn" onclick="setTab('finance', event)">Finance</button>
+            <button type="button" class="tab-btn" onclick="setTab('consumer', event)">Retail</button>
+            <button type="button" class="tab-btn" onclick="setTab('auto', event)">Auto</button>
+            <button type="button" class="tab-btn" onclick="setTab('crypto', event)">Digital</button>
         </div>
 
         <div class="scroll-box">
@@ -212,7 +212,7 @@
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h3 style="margin:0;">Current Holdings</h3>
-            <button class="btn btn-sell" onclick="sellAll()" id="sellAllBtn" style="display:none;">Sell All</button>
+            <button type="button" class="btn btn-sell" onclick="sellAll()" id="sellAllBtn" style="display:none;">Sell All</button>
         </div>
         <div class="scroll-box" style="max-height: 400px;">
             <table id="portfolioList"></table>
@@ -261,8 +261,8 @@
             </div>
         </div>
 
-        <button id="confirmTradeBtn" class="btn" style="width:100%; padding:16px; font-size:1rem;">Confirm</button>
-        <button onclick="closeModal()" class="btn btn-neutral" style="width:100%; margin-top:10px; padding:12px;">Cancel</button>
+        <button type="button" id="confirmTradeBtn" class="btn" style="width:100%; padding:16px; font-size:1rem;">Confirm</button>
+        <button type="button" onclick="closeModal()" class="btn btn-neutral" style="width:100%; margin-top:10px; padding:12px;">Cancel</button>
         
         <div style="text-align:center; margin-top:20px; opacity:0.3; font-size:0.6rem; font-weight:700;">PROCESSED BY LOWEN LLC</div>
     </div>
@@ -280,24 +280,6 @@ const LOGO_COLORS = {
     auto: '#374151',
     crypto: '#c2410c'
 };
-
-// Logo helper: returns an img tag with robust fallback chain
-function logoHTML(a, size = 40) {
-    const color = LOGO_COLORS[a.type] || '#334155';
-    const initials = a.id.substring(0, 3);
-    // We'll use a data attribute approach: try img, fallback to colored div
-    return `<div class="logo-box" style="width:${size}px;height:${size}px;" id="logo_${a.id}">
-        <img 
-            src="${a.logo}" 
-            class="logo-img" 
-            alt="${a.id}"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            onload="this.style.display='block';"
-            style="display:block;"
-        >
-        <div class="logo-fallback" style="display:none; background:${color}; font-size:${size <= 32 ? '0.6' : '0.7'}rem;">${initials}</div>
-    </div>`;
-}
 
 // --- ASSETS DATABASE — logos from reliable CDNs ---
 const ASSETS = [
@@ -470,6 +452,7 @@ function executeTrade(o) {
     saveGame();
     renderStats();
     renderPortfolio();
+    renderHistory();
 }
 
 function logHistory(type, id, qty, price) {
@@ -500,14 +483,13 @@ const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' 
 function renderStats() {
     let portVal = 0;
     Object.keys(state.holdings).forEach(id => {
-        portVal += state.holdings[id].qty * livePrices[id];
+        portVal += (state.holdings[id].qty || 0) * (livePrices[id] || 0);
     });
-
+    const netWorth = state.cash + portVal;
     document.getElementById("cashDisplay").innerText = fmt.format(state.cash);
     document.getElementById("portValueDisplay").innerText = fmt.format(portVal);
-    document.getElementById("netWorthDisplay").innerText = fmt.format(state.cash + portVal);
-    
-    updateChart(state.cash + portVal);
+    document.getElementById("netWorthDisplay").innerText = fmt.format(netWorth);
+    updateChart(netWorth);
 }
 
 function renderMarket() {
@@ -550,7 +532,7 @@ function renderMarket() {
                 </td>
                 <td style="font-size:0.95rem; font-weight:700; color:#334155;">${fmt.format(p)}</td>
                 <td style="text-align:right">
-                    <button class="btn btn-buy" onclick="openModal('BUY', '${a.id}')">Trade</button>
+                    <button type="button" class="btn btn-buy" onclick="openModal('BUY', '${a.id}')">Trade</button>
                 </td>
             </tr>`;
           });
@@ -570,13 +552,16 @@ function renderPortfolio() {
     let html = `<thead><tr><th>Asset</th><th>Qty</th><th>Value</th><th>P/L</th><th>Act</th></tr></thead>`;
     for(let id in state.holdings) {
         const h = state.holdings[id];
-        const p = livePrices[id];
+        if (!h || !h.qty || h.qty <= 0) continue; // skip corrupt/empty entries
+        const p = livePrices[id] || 0;
         const val = h.qty * p;
         const pl = val - (h.qty * h.avg);
-        const plPct = ((p - h.avg) / h.avg) * 100;
+        const plPct = h.avg > 0 ? ((p - h.avg) / h.avg) * 100 : 0;
         const meta = ASSETS.find(a => a.id === id);
-        const filter = meta && needsFilter(meta.logo) ? `filter:${TYPE_FILTERS[meta.type]};` : '';
-        const color = LOGO_COLORS[meta?.type] || '#334155';
+        if (!meta) continue; // skip unknown assets
+        const filter = needsFilter(meta.logo) ? `filter:${TYPE_FILTERS[meta.type]};` : '';
+        const color = LOGO_COLORS[meta.type] || '#334155';
+        const qtyDisplay = Number.isInteger(h.qty) ? h.qty : h.qty.toFixed(4);
 
         html += `
         <tr>
@@ -595,13 +580,13 @@ function renderPortfolio() {
                     <strong>${id}</strong>
                 </div>
             </td>
-            <td style="font-weight:600;">${h.qty}</td>
+            <td style="font-weight:600;">${qtyDisplay}</td>
             <td style="font-weight:600;">${fmt.format(val)}</td>
             <td style="${pl>=0?'color:var(--success)':'color:var(--danger)'}; font-weight:700;">
                 ${pl>=0?'+':''}${plPct.toFixed(1)}%
             </td>
             <td style="text-align:right">
-                <button class="btn btn-sell" onclick="openModal('SELL', '${id}')">Sell</button>
+                <button type="button" class="btn btn-sell" onclick="openModal('SELL', '${id}')">Sell</button>
             </td>
         </tr>`;
     }
@@ -632,10 +617,13 @@ const mainChart = new Chart(ctxMain, {
 });
 
 function updateChart(nw) {
-    if(Math.random() > 0.8) {
-        if(mainChart.data.labels.length > 60) { mainChart.data.labels.shift(); mainChart.data.datasets[0].data.shift(); }
-        mainChart.data.labels.push(""); mainChart.data.datasets[0].data.push(nw); mainChart.update();
+    if (mainChart.data.labels.length > 80) {
+        mainChart.data.labels.shift();
+        mainChart.data.datasets[0].data.shift();
     }
+    mainChart.data.labels.push('');
+    mainChart.data.datasets[0].data.push(nw);
+    mainChart.update('none'); // 'none' skips animation for performance
 }
 
 const NEWS_EVENTS = ["Lowen LLC reports strong sector growth", "Market volatility normalizes", "Fed announces rate decision", "Crypto markets showing resilience", "Tech earnings surpass estimates", "Global supply chains optimizing"];
@@ -662,18 +650,27 @@ function setTab(t, e) {
 
 function openModal(type, id) {
     currentTrade = { type, id };
+    const asset = ASSETS.find(a => a.id === id);
+    if (!asset) return;
     document.getElementById("tradeModal").style.display = "flex";
-    document.getElementById("modalTitle").innerText = `${type} ${ASSETS.find(a=>a.id===id).n}`;
+    document.getElementById("modalTitle").innerText = `${type} ${asset.n}`;
     document.getElementById("modalPrice").innerText = `Current: ${fmt.format(livePrices[id])}`;
     document.getElementById("modalQty").value = 1;
     const btn = document.getElementById("confirmTradeBtn");
-    btn.className = `btn ${type==='BUY'?'btn-buy':'btn-sell'}`;
-    btn.style.cssText = 'width:100%; padding:16px; font-size:1rem;';
+    // Reset all inline styles first, then set class — avoids cssText clobbering className
+    btn.removeAttribute('style');
+    btn.className = `btn ${type === 'BUY' ? 'btn-buy' : 'btn-sell'}`;
+    btn.style.width = '100%';
+    btn.style.padding = '16px';
+    btn.style.fontSize = '1rem';
     btn.innerText = `CONFIRM ${type}`;
     calcModal();
 }
 
-function closeModal() { document.getElementById("tradeModal").style.display = "none"; }
+function closeModal() {
+    document.getElementById("tradeModal").style.display = "none";
+    currentTrade = null;
+}
 
 document.getElementById("modalQty").oninput = calcModal;
 
@@ -688,11 +685,19 @@ function calcModal() {
 }
 
 document.getElementById("confirmTradeBtn").onclick = () => {
+    if (!currentTrade) return;
     const qty = parseInt(document.getElementById("modalQty").value);
-    if(!qty || qty < 1) return;
-    const cost = qty * livePrices[currentTrade.id];
-    if(currentTrade.type === 'BUY' && cost > state.cash) { alert("Funds Declined: Insufficient Capital"); return; }
-    if(currentTrade.type === 'SELL' && qty > (state.holdings[currentTrade.id]?.qty || 0)) { alert("Order Declined: Insufficient Assets"); return; }
+    if (!qty || qty < 1) { alert("Please enter a valid quantity."); return; }
+    const price = livePrices[currentTrade.id];
+    const cost = qty * price;
+    if (currentTrade.type === 'BUY' && cost > state.cash) {
+        alert("Funds Declined: Insufficient Capital");
+        return;
+    }
+    if (currentTrade.type === 'SELL') {
+        const owned = state.holdings[currentTrade.id]?.qty || 0;
+        if (qty > owned) { alert("Order Declined: Insufficient Assets"); return; }
+    }
     pendingOrders.push({ type: currentTrade.type, id: currentTrade.id, qty, start: Date.now() });
     closeModal();
 };
@@ -703,8 +708,22 @@ document.getElementById("tradeModal").addEventListener('click', function(e) {
 });
 
 // --- RUN ---
-setInterval(() => { updateMarket(); processPending(); updateNews(); renderStats(); renderMarket(); renderPortfolio(); }, 100); 
+// Price updates every 100ms; DOM renders every 1000ms to avoid churn
+setInterval(() => {
+    updateMarket();
+    processPending();
+    updateNews();
+}, 100);
+
+setInterval(() => {
+    renderStats();
+    renderMarket();
+    renderPortfolio();
+}, 1000);
+
 setInterval(saveGame, 4000);
+
+// Initial render
 renderStats();
 renderMarket();
 renderPortfolio();
