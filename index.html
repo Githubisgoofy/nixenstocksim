@@ -93,7 +93,6 @@
     .logo-box { width: 40px; height: 40px; border-radius: 8px; background: white; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 4px; overflow: hidden; flex-shrink: 0; }
     .logo-img { width: 100%; height: 100%; object-fit: contain; }
 
-    /* Fallback logo style */
     .logo-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: white; border-radius: 4px; }
     
     .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-left: 6px; letter-spacing: 0.5px; }
@@ -272,6 +271,53 @@
 console.log("%c NIXEN GLOBAL SIM v9 ", "background: #0f172a; color: #fff; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 20px;");
 console.log("%c © 2026 LOWEN LLC - PROPRIETARY SOFTWARE ", "color: #2563eb; font-weight: bold;");
 
+// --- SUBTLE CLICK SOUND ENGINE ---
+// Uses Web Audio API to synthesize a tiny "bubble pop" — no files needed
+let audioCtx = null;
+
+function getAudioCtx() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+}
+
+function playClickSound(type) {
+    try {
+        const ctx = getAudioCtx();
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        // Bubble-pop: short sine sweep from mid to low, very quiet
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.06);
+
+        osc.type = 'sine';
+        // Buy = slightly higher pitch pop, Sell = slightly lower
+        const startFreq = type === 'BUY' ? 520 : 380;
+        const endFreq   = type === 'BUY' ? 260 : 180;
+        osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.07);
+
+        // Very subtle volume envelope — attack then quick fade
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.09);
+    } catch(e) {
+        // Silently fail if audio isn't available
+    }
+}
+
 // Color palette for text-based fallback logos
 const LOGO_COLORS = {
     tech: '#0284c7',
@@ -343,7 +389,6 @@ const ASSETS = [
       logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/polkadot.svg" }
 ];
 
-// simple-icons are black SVGs — tint them with CSS filter per type
 const TYPE_FILTERS = {
     tech:     'invert(27%) sepia(89%) saturate(1200%) hue-rotate(193deg) brightness(97%) contrast(97%)',
     finance:  'invert(39%) sepia(72%) saturate(500%) hue-rotate(70deg) brightness(85%) contrast(90%)',
@@ -352,7 +397,6 @@ const TYPE_FILTERS = {
     crypto:   'invert(33%) sepia(80%) saturate(700%) hue-rotate(10deg) brightness(95%) contrast(95%)',
 };
 
-// Whether a URL is from simple-icons (needs color filter)
 function needsFilter(url) {
     return url.includes('simple-icons');
 }
@@ -532,7 +576,7 @@ function renderMarket() {
                 </td>
                 <td style="font-size:0.95rem; font-weight:700; color:#334155;">${fmt.format(p)}</td>
                 <td style="text-align:right">
-                    <button type="button" class="btn btn-buy" onclick="openModal('BUY', '${a.id}')">Trade</button>
+                    <button type="button" class="btn btn-buy" onclick="playClickSound('BUY'); openModal('BUY', '${a.id}')">Trade</button>
                 </td>
             </tr>`;
           });
@@ -552,13 +596,13 @@ function renderPortfolio() {
     let html = `<thead><tr><th>Asset</th><th>Qty</th><th>Value</th><th>P/L</th><th>Act</th></tr></thead>`;
     for(let id in state.holdings) {
         const h = state.holdings[id];
-        if (!h || !h.qty || h.qty <= 0) continue; // skip corrupt/empty entries
+        if (!h || !h.qty || h.qty <= 0) continue;
         const p = livePrices[id] || 0;
         const val = h.qty * p;
         const pl = val - (h.qty * h.avg);
         const plPct = h.avg > 0 ? ((p - h.avg) / h.avg) * 100 : 0;
         const meta = ASSETS.find(a => a.id === id);
-        if (!meta) continue; // skip unknown assets
+        if (!meta) continue;
         const filter = needsFilter(meta.logo) ? `filter:${TYPE_FILTERS[meta.type]};` : '';
         const color = LOGO_COLORS[meta.type] || '#334155';
         const qtyDisplay = Number.isInteger(h.qty) ? h.qty : h.qty.toFixed(4);
@@ -586,7 +630,7 @@ function renderPortfolio() {
                 ${pl>=0?'+':''}${plPct.toFixed(1)}%
             </td>
             <td style="text-align:right">
-                <button type="button" class="btn btn-sell" onclick="openModal('SELL', '${id}')">Sell</button>
+                <button type="button" class="btn btn-sell" onclick="playClickSound('SELL'); openModal('SELL', '${id}')">Sell</button>
             </td>
         </tr>`;
     }
@@ -623,7 +667,7 @@ function updateChart(nw) {
     }
     mainChart.data.labels.push('');
     mainChart.data.datasets[0].data.push(nw);
-    mainChart.update('none'); // 'none' skips animation for performance
+    mainChart.update('none');
 }
 
 const NEWS_EVENTS = ["Lowen LLC reports strong sector growth", "Market volatility normalizes", "Fed announces rate decision", "Crypto markets showing resilience", "Tech earnings surpass estimates", "Global supply chains optimizing"];
@@ -657,7 +701,6 @@ function openModal(type, id) {
     document.getElementById("modalPrice").innerText = `Current: ${fmt.format(livePrices[id])}`;
     document.getElementById("modalQty").value = 1;
     const btn = document.getElementById("confirmTradeBtn");
-    // Reset all inline styles first, then set class — avoids cssText clobbering className
     btn.removeAttribute('style');
     btn.className = `btn ${type === 'BUY' ? 'btn-buy' : 'btn-sell'}`;
     btn.style.width = '100%';
@@ -698,6 +741,8 @@ document.getElementById("confirmTradeBtn").onclick = () => {
         const owned = state.holdings[currentTrade.id]?.qty || 0;
         if (qty > owned) { alert("Order Declined: Insufficient Assets"); return; }
     }
+    // Play confirm sound on trade submission
+    playClickSound(currentTrade.type);
     pendingOrders.push({ type: currentTrade.type, id: currentTrade.id, qty, start: Date.now() });
     closeModal();
 };
@@ -708,7 +753,6 @@ document.getElementById("tradeModal").addEventListener('click', function(e) {
 });
 
 // --- RUN ---
-// Price updates every 100ms; DOM renders every 1000ms to avoid churn
 setInterval(() => {
     updateMarket();
     processPending();
