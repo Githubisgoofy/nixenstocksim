@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nixen Global Sim v9 | Lowen LLC</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary: #0f172a;
+        --accent: #2563eb;
+        --secondary: #475569;
+        --success: #10b981;
+        --danger: #ef4444;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --border: #e2e8f0;
+    }
+
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; padding-bottom: 120px; overflow-x: hidden; }
+    
+    .watermark-bg {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        font-size: 12vw;
+        font-weight: 900;
+        color: rgba(15, 23, 42, 0.03);
+        pointer-events: none;
+        z-index: 0;
+        white-space: nowrap;
+        user-select: none;
+    }
+
+    .app-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr; gap: 24px; position: relative; z-index: 1; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .full-width { grid-column: span 2; }
+    @media(max-width: 900px) { .app-container { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+
+    .card { background: var(--card); padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; transition: transform 0.2s; }
+    .card:hover { border-color: #cbd5e1; }
+    h2, h3 { margin-top: 0; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 15px; color: var(--primary); }
+    
+    .stats-header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .stat-item small { color: #64748b; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; }
+    .stat-item div { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-top: 5px; font-variant-numeric: tabular-nums; }
+
+    .user-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 12px 24px; background: white; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); position: relative; z-index: 2; }
+    .user-info { display: flex; align-items: center; gap: 12px; font-weight: 700; color: var(--primary); }
+    .user-avatar { width: 38px; height: 38px; background: var(--primary); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    
+    .brand-badge { background: black; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; margin-left: 10px; }
+
+    .legal-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid var(--border);
+        padding: 15px;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #64748b;
+        z-index: 50;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        box-shadow: 0 -4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .legal-footer strong { color: var(--primary); }
+
+    .ticker-wrap { width: 100%; overflow: hidden; background: var(--primary); color: white; padding: 10px 0; border-radius: 8px; margin-bottom: 20px; white-space: nowrap; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .ticker-move { display: inline-block; animation: ticker 40s linear infinite; padding-left: 100%; }
+    .ticker-item { display: inline-block; padding: 0 2rem; font-size: 0.9rem; font-weight: 500; }
+    @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; overflow-x: auto; }
+    .tab-btn { background: none; border: 1px solid transparent; padding: 6px 16px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 20px; transition: 0.2s; font-size: 0.85rem; white-space: nowrap; }
+    .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .tab-btn:hover:not(.active) { background: #e2e8f0; color: var(--text); }
+
+    .scroll-box { max-height: 550px; overflow-y: auto; scroll-behavior: smooth; position: relative; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0 0; }
+    thead th { position: sticky; top: 0; background: var(--card); z-index: 10; padding: 12px; text-align: left; font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
+    td { padding: 12px; background: #fff; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    
+    .asset-row { display: flex; align-items: center; gap: 14px; }
+    .logo-box { width: 40px; height: 40px; border-radius: 8px; background: white; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; padding: 4px; overflow: hidden; flex-shrink: 0; }
+    .logo-img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* Fallback logo style */
+    .logo-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: white; border-radius: 4px; }
+    
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-left: 6px; letter-spacing: 0.5px; }
+    .badge-tech { background: #e0f2fe; color: #0284c7; }
+    .badge-fin { background: #ecfccb; color: #4d7c0f; }
+    .badge-retail { background: #fce7f3; color: #be185d; }
+    .badge-auto { background: #f3f4f6; color: #374151; }
+    .badge-crypto { background: #ffedd5; color: #c2410c; }
+
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+    .btn:active { transform: scale(0.96); }
+    .btn-buy { background: #dcfce7; color: #15803d; }
+    .btn-buy:hover { background: #bbf7d0; }
+    .btn-sell { background: #fee2e2; color: #b91c1c; }
+    .btn-sell:hover { background: #fecaca; }
+    .btn-neutral { background: #f1f5f9; color: #475569; }
+    .btn-reset { background: transparent; color: #ef4444; border: 1px solid #fee2e2; font-size: 0.75rem; }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 380px; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--border); }
+    @keyframes popUp { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+    
+    .input-group { margin: 20px 0; }
+    .input-group input { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 1.5rem; text-align: center; font-weight: 800; outline: none; color: var(--primary); transition: border-color 0.2s; box-sizing: border-box; }
+    .input-group input:focus { border-color: var(--accent); }
+
+    .chart-container { position: relative; height: 350px; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="watermark-bg">LOWEN LLC</div>
+
+<div class="user-bar" id="topBar">
+    <div class="user-info">
+        <div class="user-avatar"><i class="fas fa-building"></i></div>
+        <div style="display:flex; flex-direction:column; line-height:1.1;">
+            <span style="font-size:1.1rem;">Nixen Global™</span>
+            <small style="font-size:0.7rem; color:#64748b; font-weight:500;">POWERED BY LOWEN LLC</small>
+        </div>
+        <span class="brand-badge">2026 EDITION</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:15px;">
+        <span id="saveInd" style="font-size:0.75rem; color:#10b981; font-weight:700; opacity:0; transition:opacity 0.5s;"><i class="fas fa-check"></i> SAVED</span>
+        <button class="btn btn-reset" onclick="resetAll()">Reset System</button>
+    </div>
+</div>
+
+<div class="app-container" id="appContainer">
+    
+    <div class="ticker-wrap full-width">
+        <div class="ticker-move" id="newsTicker">
+            <div class="ticker-item">Lowen LLC Market System Active</div>
+            <div class="ticker-item">Global Markets Open</div>
+            <div class="ticker-item">Trading Algorithms Optimized</div>
+            <div class="ticker-item">© 2026 Lowen LLC All Rights Reserved</div>
+        </div>
+    </div>
+
+    <div class="card full-width">
+        <div class="stats-header">
+            <div class="stat-item">
+                <small>Liquid Capital</small>
+                <div id="cashDisplay">$0.00</div>
+            </div>
+            <div class="stat-item">
+                <small>Portfolio Assets</small>
+                <div id="portValueDisplay">$0.00</div>
+            </div>
+            <div class="stat-item">
+                <small>Total Equity</small>
+                <div id="netWorthDisplay" style="color:var(--accent)">$0.00</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card full-width">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3>Equity Curve</h3>
+            <span style="font-size:0.7rem; font-weight:700; color:#cbd5e1;">DATA BY LOWEN ANALYTICS</span>
+        </div>
+        <div class="chart-container">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card full-width">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+            <h3 style="margin:0;">Market Exchange</h3>
+            <input id="searchInput" placeholder="Search Assets..." onkeyup="renderMarket()" style="padding:10px 15px; border-radius:8px; border:1px solid #ccc; width: 220px; font-size:0.9rem;">
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setTab('all', event)">All Assets</button>
+            <button class="tab-btn" onclick="setTab('tech', event)">Technology</button>
+            <button class="tab-btn" onclick="setTab('finance', event)">Finance</button>
+            <button class="tab-btn" onclick="setTab('consumer', event)">Retail</button>
+            <button class="tab-btn" onclick="setTab('auto', event)">Auto</button>
+            <button class="tab-btn" onclick="setTab('crypto', event)">Digital</button>
+        </div>
+
+        <div class="scroll-box">
+            <table id="marketTable">
+                <thead>
+                    <tr>
+                        <th>Asset / Ticker</th>
+                        <th>Price</th>
+                        <th style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="marketList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;">Current Holdings</h3>
+            <button class="btn btn-sell" onclick="sellAll()" id="sellAllBtn" style="display:none;">Sell All</button>
+        </div>
+        <div class="scroll-box" style="max-height: 400px;">
+            <table id="portfolioList"></table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Trade Ledger</h3>
+        <div class="scroll-box" style="max-height: 400px;">
+            <div id="pendingContainer" style="color:#94a3b8; font-style:italic; margin-bottom:15px; padding:10px; background:#f1f5f9; border-radius:8px; font-size:0.85rem;">System Idle.</div>
+            <table style="font-size:0.8rem;">
+                <tbody id="historyList"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="legal-footer">
+    <span>Nixen Global Sim™</span>
+    <span>•</span>
+    <span>© 2026 <strong>Lowen LLC</strong>. All Rights Reserved.</span>
+    <span>•</span>
+    <span>Enterprise Edition v9.0</span>
+</div>
+
+<div id="tradeModal" class="modal">
+    <div class="modal-box">
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2 id="modalTitle" style="margin:0;">Trade</h2>
+            <p id="modalPrice" style="color:#64748b; margin-top:5px; font-weight:600;">Price: $0.00</p>
+        </div>
+        
+        <div class="input-group">
+            <label style="display:block; text-align:center; font-size:0.75rem; font-weight:800; color:#94a3b8; letter-spacing:1px; margin-bottom:8px;">QUANTITY</label>
+            <input type="number" id="modalQty" value="1" min="1">
+        </div>
+
+        <div style="background:#f8fafc; padding:15px; border-radius:10px; margin-bottom:20px; font-size:0.9rem; border:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                <span>Total Impact:</span>
+                <strong id="modalTotal">$0.00</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#64748b;">
+                <span>Capacity:</span>
+                <span id="modalMax">0</span>
+            </div>
+        </div>
+
+        <button id="confirmTradeBtn" class="btn" style="width:100%; padding:16px; font-size:1rem;">Confirm</button>
+        <button onclick="closeModal()" class="btn btn-neutral" style="width:100%; margin-top:10px; padding:12px;">Cancel</button>
+        
+        <div style="text-align:center; margin-top:20px; opacity:0.3; font-size:0.6rem; font-weight:700;">PROCESSED BY LOWEN LLC</div>
+    </div>
+</div>
+
+<script>
+console.log("%c NIXEN GLOBAL SIM v9 ", "background: #0f172a; color: #fff; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 20px;");
+console.log("%c © 2026 LOWEN LLC - PROPRIETARY SOFTWARE ", "color: #2563eb; font-weight: bold;");
+
+// Color palette for text-based fallback logos
+const LOGO_COLORS = {
+    tech: '#0284c7',
+    finance: '#4d7c0f',
+    consumer: '#be185d',
+    auto: '#374151',
+    crypto: '#c2410c'
+};
+
+// Logo helper: returns an img tag with robust fallback chain
+function logoHTML(a, size = 40) {
+    const color = LOGO_COLORS[a.type] || '#334155';
+    const initials = a.id.substring(0, 3);
+    // We'll use a data attribute approach: try img, fallback to colored div
+    return `<div class="logo-box" style="width:${size}px;height:${size}px;" id="logo_${a.id}">
+        <img 
+            src="${a.logo}" 
+            class="logo-img" 
+            alt="${a.id}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            onload="this.style.display='block';"
+            style="display:block;"
+        >
+        <div class="logo-fallback" style="display:none; background:${color}; font-size:${size <= 32 ? '0.6' : '0.7'}rem;">${initials}</div>
+    </div>`;
+}
+
+// --- ASSETS DATABASE — logos from reliable CDNs ---
+const ASSETS = [
+    { id: "AAPL", n: "Apple", type: "tech", price: 175, vol: 0.002,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/apple.svg" },
+    { id: "MSFT", n: "Microsoft", type: "tech", price: 330, vol: 0.002,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoft.svg" },
+    { id: "GOOG", n: "Alphabet", type: "tech", price: 135, vol: 0.002,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/google.svg" },
+    { id: "AMZN", n: "Amazon", type: "tech", price: 140, vol: 0.003,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazon.svg" },
+    { id: "NVDA", n: "NVIDIA", type: "tech", price: 460, vol: 0.005,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/nvidia.svg" },
+    { id: "META", n: "Meta", type: "tech", price: 300, vol: 0.004,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/meta.svg" },
+    { id: "TSLA", n: "Tesla", type: "auto", price: 240, vol: 0.006,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/tesla.svg" },
+    { id: "NFLX", n: "Netflix", type: "tech", price: 400, vol: 0.004,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/netflix.svg" },
+    { id: "JPM", n: "JPMorgan", type: "finance", price: 150, vol: 0.002,
+      logo: "https://logo.clearbit.com/jpmorganchase.com" },
+    { id: "V", n: "Visa", type: "finance", price: 240, vol: 0.001,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/visa.svg" },
+    { id: "MA", n: "Mastercard", type: "finance", price: 400, vol: 0.002,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mastercard.svg" },
+    { id: "WMT", n: "Walmart", type: "consumer", price: 160, vol: 0.001,
+      logo: "https://logo.clearbit.com/walmart.com" },
+    { id: "KO", n: "Coca-Cola", type: "consumer", price: 58, vol: 0.001,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/cocacola.svg" },
+    { id: "PEP", n: "PepsiCo", type: "consumer", price: 170, vol: 0.001,
+      logo: "https://logo.clearbit.com/pepsico.com" },
+    { id: "TM", n: "Toyota", type: "auto", price: 180, vol: 0.0015,
+      logo: "https://logo.clearbit.com/toyota.com" },
+    { id: "F", n: "Ford", type: "auto", price: 12, vol: 0.003,
+      logo: "https://logo.clearbit.com/ford.com" },
+    { id: "BTC", n: "Bitcoin", type: "crypto", price: 42000, vol: 0.02,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/bitcoin.svg" },
+    { id: "ETH", n: "Ethereum", type: "crypto", price: 2300, vol: 0.025,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/ethereum.svg" },
+    { id: "SOL", n: "Solana", type: "crypto", price: 95, vol: 0.04,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/solana.svg" },
+    { id: "XRP", n: "Ripple", type: "crypto", price: 0.60, vol: 0.03,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/xrp.svg" },
+    { id: "ADBE", n: "Adobe", type: "tech", price: 550, vol: 0.003,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/adobe.svg" },
+    { id: "INTC", n: "Intel", type: "tech", price: 35, vol: 0.003,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/intel.svg" },
+    { id: "AMD", n: "AMD", type: "tech", price: 105, vol: 0.004,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amd.svg" },
+    { id: "CRM", n: "Salesforce", type: "tech", price: 210, vol: 0.003,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg" },
+    { id: "SBUX", n: "Starbucks", type: "consumer", price: 95, vol: 0.002,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/starbucks.svg" },
+    { id: "DIS", n: "Disney", type: "consumer", price: 85, vol: 0.003,
+      logo: "https://logo.clearbit.com/disney.com" },
+    { id: "DOGE", n: "Dogecoin", type: "crypto", price: 0.10, vol: 0.05,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/dogecoin.svg" },
+    { id: "ADA", n: "Cardano", type: "crypto", price: 0.50, vol: 0.035,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/cardano.svg" },
+    { id: "DOT", n: "Polkadot", type: "crypto", price: 7.00, vol: 0.04,
+      logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/polkadot.svg" }
+];
+
+// simple-icons are black SVGs — tint them with CSS filter per type
+const TYPE_FILTERS = {
+    tech:     'invert(27%) sepia(89%) saturate(1200%) hue-rotate(193deg) brightness(97%) contrast(97%)',
+    finance:  'invert(39%) sepia(72%) saturate(500%) hue-rotate(70deg) brightness(85%) contrast(90%)',
+    consumer: 'invert(30%) sepia(60%) saturate(800%) hue-rotate(295deg) brightness(90%) contrast(90%)',
+    auto:     'invert(20%) sepia(0%) saturate(0%) brightness(60%)',
+    crypto:   'invert(33%) sepia(80%) saturate(700%) hue-rotate(10deg) brightness(95%) contrast(95%)',
+};
+
+// Whether a URL is from simple-icons (needs color filter)
+function needsFilter(url) {
+    return url.includes('simple-icons');
+}
+
+// --- INITIALIZATION ---
+const SAVE_KEY = 'nixen_lowen_v9';
+const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [] };
+let state = JSON.parse(localStorage.getItem(SAVE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+function saveGame() {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    const el = document.getElementById('saveInd');
+    el.style.opacity = '1';
+    setTimeout(() => { el.style.opacity = '0'; }, 2000);
+}
+
+function resetAll() {
+    if(confirm("Confirm Reset? This will wipe all data from Lowen LLC secure storage.")) {
+        localStorage.removeItem(SAVE_KEY);
+        location.reload();
+    }
+}
+
+// --- CORE ENGINE ---
+let livePrices = {};
+ASSETS.forEach(a => livePrices[a.id] = a.price);
+let pendingOrders = [];
+let currentFilter = 'all';
+let currentTrade = null;
+let newsTimer = 0;
+
+function updateMarket() {
+    ASSETS.forEach(a => {
+        let change = (Math.random() - 0.5) * 2 * a.vol;
+        livePrices[a.id] = Math.max(0.01, livePrices[a.id] * (1 + change));
+    });
+}
+
+function processPending() {
+    const now = Date.now();
+    let nextPending = [];
+    let html = "";
+    
+    pendingOrders.forEach(o => {
+        let elapsed = now - o.start;
+        let pct = Math.min(100, (elapsed / 1500) * 100);
+        
+        if (pct >= 100) {
+            executeTrade(o);
+        } else {
+            nextPending.push(o);
+            html += `
+            <div style="background:white; padding:10px; margin-bottom:8px; border-radius:8px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:10px;">
+                <div style="font-weight:bold; width:40px; font-size:0.75rem;">${o.type}</div>
+                <div style="flex:1; font-weight:600;">${o.id}</div>
+                <div style="width:60px; height:6px; background:#f1f5f9; border-radius:3px; overflow:hidden;">
+                    <div style="height:100%; background:var(--primary); width:${pct}%"></div>
+                </div>
+            </div>`;
+        }
+    });
+    
+    pendingOrders = nextPending;
+    const con = document.getElementById("pendingContainer");
+    if(html) {
+        con.innerHTML = html;
+        con.style.background = "transparent";
+        con.style.fontStyle = "normal";
+    } else {
+        con.innerHTML = "System Idle.";
+        con.style.background = "#f1f5f9";
+        con.style.fontStyle = "italic";
+    }
+}
+
+function executeTrade(o) {
+    const p = livePrices[o.id];
+    const cost = p * o.qty;
+    
+    if (o.type === 'BUY') {
+        if (state.cash >= cost) {
+            state.cash -= cost;
+            const h = state.holdings[o.id] || { qty: 0, avg: 0 };
+            const totalCost = (h.qty * h.avg) + cost;
+            const newQty = h.qty + o.qty;
+            state.holdings[o.id] = { qty: newQty, avg: totalCost / newQty };
+            logHistory("BUY", o.id, o.qty, p);
+        }
+    } else {
+        if (state.holdings[o.id] && state.holdings[o.id].qty >= o.qty) {
+            state.cash += cost;
+            state.holdings[o.id].qty -= o.qty;
+            if (state.holdings[o.id].qty <= 0) delete state.holdings[o.id];
+            logHistory("SELL", o.id, o.qty, p);
+        }
+    }
+    saveGame();
+    renderStats();
+    renderPortfolio();
+}
+
+function logHistory(type, id, qty, price) {
+    state.history.unshift({ type, id, qty, price, time: new Date().toLocaleTimeString() });
+    if (state.history.length > 50) state.history.pop();
+    renderHistory();
+}
+
+function sellAll() {
+    const ids = Object.keys(state.holdings);
+    if(ids.length === 0) return;
+    if(!confirm(`Liquidate all ${ids.length} position(s) at market price?`)) return;
+    ids.forEach(id => {
+        const h = state.holdings[id];
+        const p = livePrices[id];
+        state.cash += h.qty * p;
+        logHistory("SELL", id, h.qty, p);
+    });
+    state.holdings = {};
+    saveGame();
+    renderStats();
+    renderPortfolio();
+}
+
+// --- RENDERING ---
+const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+function renderStats() {
+    let portVal = 0;
+    Object.keys(state.holdings).forEach(id => {
+        portVal += state.holdings[id].qty * livePrices[id];
+    });
+
+    document.getElementById("cashDisplay").innerText = fmt.format(state.cash);
+    document.getElementById("portValueDisplay").innerText = fmt.format(portVal);
+    document.getElementById("netWorthDisplay").innerText = fmt.format(state.cash + portVal);
+    
+    updateChart(state.cash + portVal);
+}
+
+function renderMarket() {
+    const tbody = document.getElementById("marketList");
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    let html = "";
+
+    ASSETS.filter(a => (currentFilter === 'all' || a.type === currentFilter) && 
+                       (a.n.toLowerCase().includes(search) || a.id.toLowerCase().includes(search)))
+          .forEach(a => {
+            const p = livePrices[a.id];
+            let badgeClass = 'badge-tech';
+            if(a.type === 'finance') badgeClass = 'badge-fin';
+            if(a.type === 'consumer') badgeClass = 'badge-retail';
+            if(a.type === 'auto') badgeClass = 'badge-auto';
+            if(a.type === 'crypto') badgeClass = 'badge-crypto';
+
+            const filter = needsFilter(a.logo) ? `filter:${TYPE_FILTERS[a.type]};` : '';
+            const color = LOGO_COLORS[a.type] || '#334155';
+
+            html += `
+            <tr>
+                <td>
+                    <div class="asset-row">
+                        <div class="logo-box">
+                            <img 
+                                src="${a.logo}" 
+                                class="logo-img" 
+                                alt="${a.id}"
+                                style="${filter}"
+                                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                            >
+                            <div class="logo-fallback" style="display:none;background:${color};">${a.id.substring(0,3)}</div>
+                        </div>
+                        <div>
+                            <div style="font-weight:700; font-size:0.9rem; color:var(--primary);">${a.n} <span class="badge ${badgeClass}">${a.type.toUpperCase()}</span></div>
+                            <small style="color:#64748b; font-weight:600;">${a.id}</small>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-size:0.95rem; font-weight:700; color:#334155;">${fmt.format(p)}</td>
+                <td style="text-align:right">
+                    <button class="btn btn-buy" onclick="openModal('BUY', '${a.id}')">Trade</button>
+                </td>
+            </tr>`;
+          });
+    tbody.innerHTML = html;
+}
+
+function renderPortfolio() {
+    const portList = document.getElementById("portfolioList");
+    const sellAllBtn = document.getElementById('sellAllBtn');
+    if(Object.keys(state.holdings).length === 0) {
+        if(sellAllBtn) sellAllBtn.style.display = 'none';
+        portList.innerHTML = `<tr><td style="text-align:center; color:#94a3b8; padding:30px; font-weight:500;">No assets under management.</td></tr>`;
+        return;
+    }
+
+    if(sellAllBtn) sellAllBtn.style.display = 'inline-block';
+    let html = `<thead><tr><th>Asset</th><th>Qty</th><th>Value</th><th>P/L</th><th>Act</th></tr></thead>`;
+    for(let id in state.holdings) {
+        const h = state.holdings[id];
+        const p = livePrices[id];
+        const val = h.qty * p;
+        const pl = val - (h.qty * h.avg);
+        const plPct = ((p - h.avg) / h.avg) * 100;
+        const meta = ASSETS.find(a => a.id === id);
+        const filter = meta && needsFilter(meta.logo) ? `filter:${TYPE_FILTERS[meta.type]};` : '';
+        const color = LOGO_COLORS[meta?.type] || '#334155';
+
+        html += `
+        <tr>
+            <td>
+                <div class="asset-row">
+                    <div class="logo-box" style="width:32px;height:32px;">
+                        <img 
+                            src="${meta.logo}" 
+                            class="logo-img" 
+                            alt="${id}"
+                            style="${filter}"
+                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        >
+                        <div class="logo-fallback" style="display:none;background:${color};font-size:0.6rem;">${id.substring(0,3)}</div>
+                    </div>
+                    <strong>${id}</strong>
+                </div>
+            </td>
+            <td style="font-weight:600;">${h.qty}</td>
+            <td style="font-weight:600;">${fmt.format(val)}</td>
+            <td style="${pl>=0?'color:var(--success)':'color:var(--danger)'}; font-weight:700;">
+                ${pl>=0?'+':''}${plPct.toFixed(1)}%
+            </td>
+            <td style="text-align:right">
+                <button class="btn btn-sell" onclick="openModal('SELL', '${id}')">Sell</button>
+            </td>
+        </tr>`;
+    }
+    portList.innerHTML = html;
+}
+
+function renderHistory() {
+    document.getElementById("historyList").innerHTML = state.history.map(h => `
+        <tr style="background:${h.type==='BUY'?'#f0fdf4':'#fef2f2'}">
+            <td style="color:#64748b; font-weight:500;">${h.time}</td>
+            <td><strong style="color:${h.type==='BUY'?'#15803d':'#b91c1c'}">${h.type}</strong> ${h.id}</td>
+            <td>x${h.qty}</td>
+            <td>@ ${fmt.format(h.price)}</td>
+        </tr>
+    `).join('');
+}
+
+// --- CHART & NEWS ---
+const ctxMain = document.getElementById('mainChart').getContext('2d');
+let gradient = ctxMain.createLinearGradient(0, 0, 0, 400);
+gradient.addColorStop(0, 'rgba(37, 99, 235, 0.1)');
+gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+
+const mainChart = new Chart(ctxMain, {
+    type: 'line',
+    data: { labels: [], datasets: [{ label: 'Equity', data: [], borderColor: '#2563eb', backgroundColor: gradient, fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false} }, scales: { x: {display:false}, y: { grid: {color: '#f1f5f9'} } }, animation: false }
+});
+
+function updateChart(nw) {
+    if(Math.random() > 0.8) {
+        if(mainChart.data.labels.length > 60) { mainChart.data.labels.shift(); mainChart.data.datasets[0].data.shift(); }
+        mainChart.data.labels.push(""); mainChart.data.datasets[0].data.push(nw); mainChart.update();
+    }
+}
+
+const NEWS_EVENTS = ["Lowen LLC reports strong sector growth", "Market volatility normalizes", "Fed announces rate decision", "Crypto markets showing resilience", "Tech earnings surpass estimates", "Global supply chains optimizing"];
+function updateNews() {
+    newsTimer++;
+    if(newsTimer > 300) { 
+        newsTimer = 0;
+        const msg = NEWS_EVENTS[Math.floor(Math.random()*NEWS_EVENTS.length)];
+        const ticker = document.getElementById("newsTicker");
+        const item = document.createElement("div");
+        item.className = "ticker-item";
+        item.innerText = msg;
+        ticker.appendChild(item);
+    }
+}
+
+// --- INTERACTION ---
+function setTab(t, e) {
+    currentFilter = t;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    if(e && e.target) e.target.classList.add('active');
+    renderMarket();
+}
+
+function openModal(type, id) {
+    currentTrade = { type, id };
+    document.getElementById("tradeModal").style.display = "flex";
+    document.getElementById("modalTitle").innerText = `${type} ${ASSETS.find(a=>a.id===id).n}`;
+    document.getElementById("modalPrice").innerText = `Current: ${fmt.format(livePrices[id])}`;
+    document.getElementById("modalQty").value = 1;
+    const btn = document.getElementById("confirmTradeBtn");
+    btn.className = `btn ${type==='BUY'?'btn-buy':'btn-sell'}`;
+    btn.style.cssText = 'width:100%; padding:16px; font-size:1rem;';
+    btn.innerText = `CONFIRM ${type}`;
+    calcModal();
+}
+
+function closeModal() { document.getElementById("tradeModal").style.display = "none"; }
+
+document.getElementById("modalQty").oninput = calcModal;
+
+function calcModal() {
+    if(!currentTrade) return;
+    const qty = parseInt(document.getElementById("modalQty").value) || 0;
+    const p = livePrices[currentTrade.id];
+    const total = qty * p;
+    document.getElementById("modalTotal").innerText = fmt.format(total);
+    if(currentTrade.type === 'BUY') document.getElementById("modalMax").innerText = Math.floor(state.cash/p);
+    else document.getElementById("modalMax").innerText = state.holdings[currentTrade.id]?.qty || 0;
+}
+
+document.getElementById("confirmTradeBtn").onclick = () => {
+    const qty = parseInt(document.getElementById("modalQty").value);
+    if(!qty || qty < 1) return;
+    const cost = qty * livePrices[currentTrade.id];
+    if(currentTrade.type === 'BUY' && cost > state.cash) { alert("Funds Declined: Insufficient Capital"); return; }
+    if(currentTrade.type === 'SELL' && qty > (state.holdings[currentTrade.id]?.qty || 0)) { alert("Order Declined: Insufficient Assets"); return; }
+    pendingOrders.push({ type: currentTrade.type, id: currentTrade.id, qty, start: Date.now() });
+    closeModal();
+};
+
+// Close modal on backdrop click
+document.getElementById("tradeModal").addEventListener('click', function(e) {
+    if(e.target === this) closeModal();
+});
+
+// --- RUN ---
+setInterval(() => { updateMarket(); processPending(); updateNews(); renderStats(); renderMarket(); renderPortfolio(); }, 100); 
+setInterval(saveGame, 4000);
+renderStats();
+renderMarket();
+renderPortfolio();
+renderHistory();
+</script>
+</body>
+</html>
