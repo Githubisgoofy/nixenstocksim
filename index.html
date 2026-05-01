@@ -17,6 +17,9 @@
         --card: #ffffff;
         --text: #0f172a;
         --border: #e2e8f0;
+        --gold: #fbbf24;
+        --silver: #94a3b8;
+        --bronze: #f97316;
     }
 
     body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; padding-bottom: 120px; overflow-x: hidden; }
@@ -120,6 +123,44 @@
     .input-group input:focus { border-color: var(--accent); }
 
     .chart-container { position: relative; height: 350px; width: 100%; }
+
+    /* Leaderboard Styles */
+    .leaderboard-entry {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: white;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+    }
+    .leaderboard-entry:hover { background: #f8fafc; }
+    .leaderboard-entry.current-user { background: #eff6ff; border-left: 3px solid var(--accent); }
+    
+    .rank-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.1rem;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; box-shadow: 0 4px 8px rgba(251, 191, 36, 0.3); }
+    .rank-2 { background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: white; box-shadow: 0 4px 8px rgba(148, 163, 184, 0.3); }
+    .rank-3 { background: linear-gradient(135deg, #fb923c, #f97316); color: white; box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3); }
+    .rank-other { background: #f1f5f9; color: #64748b; }
+
+    .leader-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .leader-name { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+    .leader-stats { display: flex; gap: 15px; font-size: 0.75rem; color: #64748b; }
+    
+    .gain-positive { color: var(--success); font-weight: 700; }
+    .gain-negative { color: var(--danger); font-weight: 700; }
+
+    .name-input-modal .modal-box { max-width: 400px; }
 </style>
 </head>
 <body>
@@ -130,7 +171,7 @@
     <div class="user-info">
         <div class="user-avatar"><i class="fas fa-building"></i></div>
         <div style="display:flex; flex-direction:column; line-height:1.1;">
-            <span style="font-size:1.1rem;">Nixen Global™</span>
+            <span style="font-size:1.1rem;" id="userDisplayName">Nixen Global™</span>
             <small style="font-size:0.7rem; color:#64748b; font-weight:500;">POWERED BY LOWEN LLC</small>
         </div>
         <span class="brand-badge">2026 EDITION</span>
@@ -176,6 +217,19 @@
         </div>
         <div class="chart-container">
             <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD CARD -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;"><i class="fas fa-trophy" style="color:var(--gold); margin-right:8px;"></i>Global Leaderboard</h3>
+            <button type="button" class="btn btn-neutral" onclick="openNameModal()" style="font-size:0.75rem; padding:6px 12px;">
+                <i class="fas fa-edit"></i> Change Name
+            </button>
+        </div>
+        <div class="scroll-box" style="max-height: 400px;">
+            <div id="leaderboardList"></div>
         </div>
     </div>
 
@@ -267,12 +321,28 @@
     </div>
 </div>
 
+<!-- NAME INPUT MODAL -->
+<div id="nameModal" class="modal name-input-modal">
+    <div class="modal-box">
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2 style="margin:0;">Set Your Trader Name</h2>
+            <p style="color:#64748b; margin-top:5px; font-weight:500; font-size:0.9rem;">This name will appear on the global leaderboard</p>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="nameInput" placeholder="Enter name..." maxlength="20" style="font-size:1.2rem;">
+        </div>
+
+        <button type="button" onclick="saveName()" class="btn" style="width:100%; padding:16px; font-size:1rem; background:var(--accent); color:white;">Save Name</button>
+        <button type="button" onclick="closeNameModal()" class="btn btn-neutral" style="width:100%; margin-top:10px; padding:12px;">Cancel</button>
+    </div>
+</div>
+
 <script>
-console.log("%c NIXEN GLOBAL SIM v9 ", "background: #0f172a; color: #fff; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 20px;");
+console.log("%c NIXEN GLOBAL SIM v9 + LEADERBOARD ", "background: #0f172a; color: #fff; padding: 10px; border-radius: 5px; font-weight: bold; font-size: 20px;");
 console.log("%c © 2026 LOWEN LLC - PROPRIETARY SOFTWARE ", "color: #2563eb; font-weight: bold;");
 
-// --- SUBTLE CLICK SOUND ENGINE ---
-// Uses Web Audio API to synthesize a tiny "bubble pop" — no files needed
+// --- AUDIO ENGINE ---
 let audioCtx = null;
 
 function getAudioCtx() {
@@ -285,7 +355,6 @@ function getAudioCtx() {
 function playClickSound(type) {
     try {
         const ctx = getAudioCtx();
-
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         const filter = ctx.createBiquadFilter();
@@ -294,31 +363,25 @@ function playClickSound(type) {
         filter.connect(gain);
         gain.connect(ctx.destination);
 
-        // Bubble-pop: short sine sweep from mid to low, very quiet
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(800, ctx.currentTime);
         filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.06);
 
         osc.type = 'sine';
-        // Buy = slightly higher pitch pop, Sell = slightly lower
         const startFreq = type === 'BUY' ? 520 : 380;
         const endFreq   = type === 'BUY' ? 260 : 180;
         osc.frequency.setValueAtTime(startFreq, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + 0.07);
 
-        // Very subtle volume envelope — attack then quick fade
         gain.gain.setValueAtTime(0, ctx.currentTime);
         gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
 
         osc.start(ctx.currentTime);
         osc.stop(ctx.currentTime + 0.09);
-    } catch(e) {
-        // Silently fail if audio isn't available
-    }
+    } catch(e) {}
 }
 
-// Color palette for text-based fallback logos
 const LOGO_COLORS = {
     tech: '#0284c7',
     finance: '#4d7c0f',
@@ -327,7 +390,6 @@ const LOGO_COLORS = {
     crypto: '#c2410c'
 };
 
-// --- ASSETS DATABASE — logos from reliable CDNs ---
 const ASSETS = [
     { id: "AAPL", n: "Apple", type: "tech", price: 175, vol: 0.002,
       logo: "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/apple.svg" },
@@ -401,16 +463,25 @@ function needsFilter(url) {
     return url.includes('simple-icons');
 }
 
-// --- INITIALIZATION ---
+// --- STATE MANAGEMENT ---
 const SAVE_KEY = 'nixen_lowen_v9';
-const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [] };
+const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [], userId: null, userName: null };
 let state = JSON.parse(localStorage.getItem(SAVE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+// Generate unique user ID if not present
+if (!state.userId) {
+    state.userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    saveGame();
+}
 
 function saveGame() {
     localStorage.setItem(SAVE_KEY, JSON.stringify(state));
     const el = document.getElementById('saveInd');
     el.style.opacity = '1';
     setTimeout(() => { el.style.opacity = '0'; }, 2000);
+    
+    // Update leaderboard on save
+    updateLeaderboard();
 }
 
 function resetAll() {
@@ -419,6 +490,145 @@ function resetAll() {
         location.reload();
     }
 }
+
+// --- LEADERBOARD SYSTEM ---
+async function updateLeaderboard() {
+    if (!state.userName) return; // Don't submit if no name set
+    
+    let portVal = 0;
+    Object.keys(state.holdings).forEach(id => {
+        portVal += (state.holdings[id].qty || 0) * (livePrices[id] || 0);
+    });
+    const netWorth = state.cash + portVal;
+    const gain = ((netWorth - 50000) / 50000) * 100;
+    
+    try {
+        await window.storage.set(`leaderboard:${state.userId}`, JSON.stringify({
+            name: state.userName,
+            netWorth: netWorth,
+            gain: gain,
+            lastUpdate: Date.now()
+        }), true); // shared = true for global leaderboard
+    } catch(e) {
+        console.log('Leaderboard update skipped:', e);
+    }
+}
+
+async function renderLeaderboard() {
+    const container = document.getElementById('leaderboardList');
+    
+    try {
+        const result = await window.storage.list('leaderboard:', true);
+        if (!result || !result.keys || result.keys.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px; color:#94a3b8;">
+                    <i class="fas fa-trophy" style="font-size:3rem; margin-bottom:10px; opacity:0.3;"></i>
+                    <p style="font-weight:600;">No traders yet. Be the first!</p>
+                </div>`;
+            return;
+        }
+        
+        // Fetch all entries
+        const entries = [];
+        for (const key of result.keys) {
+            try {
+                const data = await window.storage.get(key, true);
+                if (data && data.value) {
+                    const entry = JSON.parse(data.value);
+                    entries.push({ userId: key.replace('leaderboard:', ''), ...entry });
+                }
+            } catch(e) {}
+        }
+        
+        // Sort by net worth descending
+        entries.sort((a, b) => b.netWorth - a.netWorth);
+        
+        // Render top 10
+        let html = '';
+        const top10 = entries.slice(0, 10);
+        
+        top10.forEach((entry, index) => {
+            const rank = index + 1;
+            const isCurrentUser = entry.userId === state.userId;
+            
+            let rankClass = 'rank-other';
+            let rankIcon = rank;
+            if (rank === 1) { rankClass = 'rank-1'; rankIcon = '🥇'; }
+            else if (rank === 2) { rankClass = 'rank-2'; rankIcon = '🥈'; }
+            else if (rank === 3) { rankClass = 'rank-3'; rankIcon = '🥉'; }
+            
+            const gainClass = entry.gain >= 0 ? 'gain-positive' : 'gain-negative';
+            const gainPrefix = entry.gain >= 0 ? '+' : '';
+            
+            html += `
+            <div class="leaderboard-entry ${isCurrentUser ? 'current-user' : ''}">
+                <div class="rank-badge ${rankClass}">${rankIcon}</div>
+                <div class="leader-info">
+                    <div class="leader-name">
+                        ${entry.name}
+                        ${isCurrentUser ? '<i class="fas fa-user" style="color:var(--accent); margin-left:6px; font-size:0.8rem;"></i>' : ''}
+                    </div>
+                    <div class="leader-stats">
+                        <span><strong>${fmt.format(entry.netWorth)}</strong></span>
+                        <span>•</span>
+                        <span class="${gainClass}">${gainPrefix}${entry.gain.toFixed(2)}%</span>
+                    </div>
+                </div>
+            </div>`;
+        });
+        
+        container.innerHTML = html;
+        
+    } catch(e) {
+        console.log('Leaderboard render error:', e);
+        container.innerHTML = `
+            <div style="text-align:center; padding:30px; color:#94a3b8;">
+                <p>Leaderboard temporarily unavailable</p>
+            </div>`;
+    }
+}
+
+// --- NAME MANAGEMENT ---
+function openNameModal() {
+    document.getElementById('nameModal').style.display = 'flex';
+    document.getElementById('nameInput').value = state.userName || '';
+    document.getElementById('nameInput').focus();
+}
+
+function closeNameModal() {
+    document.getElementById('nameModal').style.display = 'none';
+}
+
+function saveName() {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name || name.length < 2) {
+        alert('Please enter a name (min 2 characters)');
+        return;
+    }
+    
+    state.userName = name;
+    document.getElementById('userDisplayName').innerText = name;
+    saveGame();
+    closeNameModal();
+    renderLeaderboard();
+}
+
+// Prompt for name on first load
+if (!state.userName) {
+    setTimeout(() => {
+        openNameModal();
+    }, 500);
+}
+
+// Close name modal on backdrop click
+document.getElementById('nameModal').addEventListener('click', function(e) {
+    if(e.target === this) closeNameModal();
+});
+
+// Enter key to save name
+document.getElementById('nameInput').addEventListener('keypress', function(e) {
+    if(e.key === 'Enter') saveName();
+});
 
 // --- CORE ENGINE ---
 let livePrices = {};
@@ -741,13 +951,11 @@ document.getElementById("confirmTradeBtn").onclick = () => {
         const owned = state.holdings[currentTrade.id]?.qty || 0;
         if (qty > owned) { alert("Order Declined: Insufficient Assets"); return; }
     }
-    // Play confirm sound on trade submission
     playClickSound(currentTrade.type);
     pendingOrders.push({ type: currentTrade.type, id: currentTrade.id, qty, start: Date.now() });
     closeModal();
 };
 
-// Close modal on backdrop click
 document.getElementById("tradeModal").addEventListener('click', function(e) {
     if(e.target === this) closeModal();
 });
@@ -766,12 +974,17 @@ setInterval(() => {
 }, 1000);
 
 setInterval(saveGame, 4000);
+setInterval(renderLeaderboard, 5000); // Refresh leaderboard every 5s
 
 // Initial render
+if (state.userName) {
+    document.getElementById('userDisplayName').innerText = state.userName;
+}
 renderStats();
 renderMarket();
 renderPortfolio();
 renderHistory();
+renderLeaderboard();
 </script>
 </body>
 </html>
