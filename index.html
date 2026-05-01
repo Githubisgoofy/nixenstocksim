@@ -488,7 +488,7 @@ function resetAll() {
 }
 
 // --- SUPABASE LEADERBOARD ---
-// Table DDL (run once in Supabase SQL editor):
+// Run this DDL in Supabase SQL editor if table doesn't exist:
 // CREATE TABLE IF NOT EXISTS leaderboard (
 //   user_id TEXT PRIMARY KEY,
 //   name TEXT NOT NULL,
@@ -497,9 +497,37 @@ function resetAll() {
 //   updated_at TIMESTAMPTZ DEFAULT now()
 // );
 // ALTER TABLE leaderboard ENABLE ROW LEVEL SECURITY;
-// CREATE POLICY "public read" ON leaderboard FOR SELECT USING (true);
-// CREATE POLICY "public upsert" ON leaderboard FOR INSERT WITH CHECK (true);
-// CREATE POLICY "public update" ON leaderboard FOR UPDATE USING (true);
+// CREATE POLICY "allow_all" ON leaderboard FOR ALL USING (true) WITH CHECK (true);
+
+// Schema probe — figure out actual column names at runtime
+let lbCols = null; // cached after first successful probe
+
+async function probeLBSchema() {
+    if (lbCols) return lbCols;
+    // Fetch one row with all columns to see what exists
+    const { data, error } = await sb.from('leaderboard').select('*').limit(1);
+    if (error) {
+        console.error('Schema probe error:', error.message);
+        return null;
+    }
+    if (data && data.length > 0) {
+        const keys = Object.keys(data[0]);
+        console.log('LB columns found:', keys);
+        // Map expected names to actual names
+        lbCols = {
+            user_id:    keys.find(k => /user.?id|uid/i.test(k)) || keys[0],
+            name:       keys.find(k => /^name$/i.test(k)) || 'name',
+            net_worth:  keys.find(k => /net.?worth|networth/i.test(k)) || 'net_worth',
+            gain:       keys.find(k => /^gain$/i.test(k)) || 'gain',
+            updated_at: keys.find(k => /updated/i.test(k)) || null,
+        };
+    } else {
+        // Table empty — assume our DDL column names are correct
+        lbCols = { user_id: 'user_id', name: 'name', net_worth: 'net_worth', gain: 'gain', updated_at: 'updated_at' };
+    }
+    console.log('Resolved LB cols:', lbCols);
+    return lbCols;
+}
 
 async function updateLeaderboard() {
     if (!state.userName) return;
@@ -511,14 +539,18 @@ async function updateLeaderboard() {
     const gain = ((netWorth - 50000) / 50000) * 100;
 
     try {
-        const { error } = await sb.from('leaderboard').upsert({
-            user_id: state.userId,
-            name: state.userName,
-            net_worth: netWorth,
-            gain: gain,
-            updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-        if (error) console.error('LB upsert error:', error);
+        const cols = await probeLBSchema();
+        if (!cols) return;
+
+        const row = {};
+        row[cols.user_id]   = state.userId;
+        row[cols.name]      = state.userName;
+        row[cols.net_worth] = netWorth;
+        row[cols.gain]      = gain;
+        if (cols.updated_at) row[cols.updated_at] = new Date().toISOString();
+
+        const { error } = await sb.from('leaderboard').upsert(row, { onConflict: cols.user_id });
+        if (error) console.error('LB upsert error:', error.message);
     } catch(e) {
         console.error('LB update failed:', e);
     }
@@ -526,13 +558,17 @@ async function updateLeaderboard() {
 
 async function renderLeaderboard() {
     const container = document.getElementById('leaderboardList');
-    const statusEl = document.getElementById('lbStatus');
+    const statusEl  = document.getElementById('lbStatus');
 
     try {
+        const cols = await probeLBSchema();
+        if (!cols) throw new Error('Could not read table schema');
+
+        const selectCols = [cols.user_id, cols.name, cols.net_worth, cols.gain].filter(Boolean).join(', ');
         const { data, error } = await sb
             .from('leaderboard')
-            .select('user_id, name, net_worth, gain, updated_at')
-            .order('net_worth', { ascending: false })
+            .select(selectCols)
+            .order(cols.net_worth, { ascending: false })
             .limit(10);
 
         if (error) throw error;
@@ -551,29 +587,31 @@ async function renderLeaderboard() {
         let html = '';
         data.forEach((entry, index) => {
             const rank = index + 1;
-            const isCurrentUser = entry.user_id === state.userId;
+            const isCurrentUser = entry[cols.user_id] === state.userId;
+            const netWorthVal = entry[cols.net_worth] || 50000;
+            const gainVal     = entry[cols.gain] || 0;
+            const nameVal     = entry[cols.name] || 'Unknown';
 
-            let rankClass = 'rank-other';
-            let rankIcon = rank;
+            let rankClass = 'rank-other', rankIcon = rank;
             if (rank === 1) { rankClass = 'rank-1'; rankIcon = '🥇'; }
             else if (rank === 2) { rankClass = 'rank-2'; rankIcon = '🥈'; }
             else if (rank === 3) { rankClass = 'rank-3'; rankIcon = '🥉'; }
 
-            const gainClass = entry.gain >= 0 ? 'gain-positive' : 'gain-negative';
-            const gainPrefix = entry.gain >= 0 ? '+' : '';
+            const gainClass  = gainVal >= 0 ? 'gain-positive' : 'gain-negative';
+            const gainPrefix = gainVal >= 0 ? '+' : '';
 
             html += `
             <div class="leaderboard-entry ${isCurrentUser ? 'current-user' : ''}">
                 <div class="rank-badge ${rankClass}">${rankIcon}</div>
                 <div class="leader-info">
                     <div class="leader-name">
-                        ${entry.name}
+                        ${nameVal}
                         ${isCurrentUser ? '<i class="fas fa-user" style="color:var(--accent); margin-left:6px; font-size:0.8rem;"></i>' : ''}
                     </div>
                     <div class="leader-stats">
-                        <span><strong>${fmt.format(entry.net_worth)}</strong></span>
+                        <span><strong>${fmt.format(netWorthVal)}</strong></span>
                         <span>•</span>
-                        <span class="${gainClass}">${gainPrefix}${entry.gain.toFixed(2)}%</span>
+                        <span class="${gainClass}">${gainPrefix}${gainVal.toFixed(2)}%</span>
                     </div>
                 </div>
             </div>`;
@@ -582,11 +620,12 @@ async function renderLeaderboard() {
         container.innerHTML = html;
     } catch(e) {
         console.error('LB render error:', e);
-        statusEl.textContent = 'Offline';
+        statusEl.textContent = 'Error';
         container.innerHTML = `
             <div style="text-align:center; padding:30px; color:#94a3b8;">
-                <p>Could not connect to Supabase.<br>Check RLS policies or table exists.</p>
-                <small style="font-size:0.7rem;">${e.message || ''}</small>
+                <p style="font-weight:600; color:#ef4444;">Leaderboard error</p>
+                <code style="font-size:0.7rem; background:#f1f5f9; padding:8px; border-radius:6px; display:block; margin-top:8px; text-align:left; color:#334155;">${e.message || JSON.stringify(e)}</code>
+                <p style="font-size:0.75rem; margin-top:10px;">Run the DDL in Supabase SQL editor (see JS comments)</p>
             </div>`;
     }
 }
