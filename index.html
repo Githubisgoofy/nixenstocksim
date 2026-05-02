@@ -114,6 +114,8 @@
     .btn-sell:hover { background: #fecaca; }
     .btn-neutral { background: #f1f5f9; color: #475569; }
     .btn-reset { background: transparent; color: #ef4444; border: 1px solid #fee2e2; font-size: 0.75rem; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
     
     .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
     .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 380px; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--border); }
@@ -122,6 +124,7 @@
     .input-group { margin: 20px 0; }
     .input-group input { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 1.5rem; text-align: center; font-weight: 800; outline: none; color: var(--primary); transition: border-color 0.2s; box-sizing: border-box; }
     .input-group input:focus { border-color: var(--accent); }
+    .input-group input[type="email"], .input-group input[type="password"] { font-size: 1rem; text-align: left; font-weight: 400; }
 
     .chart-container { position: relative; height: 350px; width: 100%; }
 
@@ -162,9 +165,21 @@
 
     .lb-status { font-size: 0.7rem; color: #94a3b8; font-weight: 600; }
     .lb-live { color: #10b981; }
+
+    .auth-switch { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #64748b; }
+    .auth-switch a { color: var(--accent); cursor: pointer; text-decoration: underline; font-weight: 600; }
+    .auth-switch a:hover { color: #1d4ed8; }
+
+    .loading-screen { position: fixed; inset: 0; background: white; z-index: 999; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+    .loading-screen.hidden { display: none; }
 </style>
 </head>
 <body>
+
+<div class="loading-screen" id="loadingScreen">
+    <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--accent);"></i>
+    <div style="font-weight: 700; color: var(--primary);">Loading Nixen Global...</div>
+</div>
 
 <div class="watermark-bg">LOWEN LLC</div>
 
@@ -179,6 +194,7 @@
     </div>
     <div style="display:flex; align-items:center; gap:15px;">
         <span id="saveInd" style="font-size:0.75rem; color:#10b981; font-weight:700; opacity:0; transition:opacity 0.5s;"><i class="fas fa-check"></i> SAVED</span>
+        <button type="button" class="btn btn-neutral" onclick="signOut()" id="signOutBtn" style="font-size:0.75rem; padding:6px 12px;">Sign Out</button>
         <button type="button" class="btn btn-reset" onclick="resetAll()">Reset System</button>
     </div>
 </div>
@@ -222,7 +238,6 @@
         </div>
     </div>
 
-    <!-- LEADERBOARD CARD -->
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <div>
@@ -302,6 +317,31 @@
     <span>Enterprise Edition v9.0</span>
 </div>
 
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal" style="display: none;">
+    <div class="modal-box">
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2 id="authTitle" style="margin:0;">Sign In</h2>
+            <p style="color:#64748b; margin-top:5px; font-weight:500; font-size:0.9rem;">Access your Nixen Global account</p>
+        </div>
+        
+        <div class="input-group">
+            <input type="email" id="authEmail" placeholder="Email" style="font-size:1rem; text-align:left; font-weight:400;">
+        </div>
+        <div class="input-group">
+            <input type="password" id="authPassword" placeholder="Password" style="font-size:1rem; text-align:left; font-weight:400;">
+        </div>
+
+        <div id="authError" style="color: var(--danger); font-size:0.85rem; margin-bottom:10px; display:none; text-align:center; font-weight:600;"></div>
+
+        <button type="button" onclick="handleAuth()" class="btn btn-primary" style="width:100%; padding:16px; font-size:1rem;" id="authSubmitBtn">Sign In</button>
+        
+        <div class="auth-switch">
+            <span id="authSwitchText">Don't have an account? <a onclick="toggleAuthMode()">Sign Up</a></span>
+        </div>
+    </div>
+</div>
+
 <div id="tradeModal" class="modal">
     <div class="modal-box">
         <div style="text-align:center; margin-bottom:20px;">
@@ -332,7 +372,6 @@
     </div>
 </div>
 
-<!-- NAME INPUT MODAL -->
 <div id="nameModal" class="modal">
     <div class="modal-box">
         <div style="text-align:center; margin-bottom:20px;">
@@ -344,7 +383,7 @@
             <input type="text" id="nameInput" placeholder="Enter name..." maxlength="20" style="font-size:1.2rem;">
         </div>
 
-        <button type="button" onclick="saveName()" class="btn" style="width:100%; padding:16px; font-size:1rem; background:var(--accent); color:white;">Save Name</button>
+        <button type="button" onclick="saveName()" class="btn btn-primary" style="width:100%; padding:16px; font-size:1rem;">Save Name</button>
         <button type="button" onclick="closeNameModal()" class="btn btn-neutral" style="width:100%; margin-top:10px; padding:12px;">Cancel</button>
     </div>
 </div>
@@ -355,6 +394,103 @@ const SUPA_URL = 'https://cjbxzzniGvrpqlgsHvei.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqYnh6em5pZ3ZycHFsZ3NodmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTQ1MDMsImV4cCI6MjA5Mjk5MDUwM30.r5ECMDKf_hdzDicB5LNrkjkz-xzL6308EAB6zO0LSv0';
 const { createClient } = supabase;
 const sb = createClient(SUPA_URL, SUPA_KEY);
+
+let currentUser = null;
+let isSignUpMode = false;
+
+// --- AUTH FUNCTIONS ---
+async function checkAuth() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+        currentUser = session.user;
+        await loadUserData();
+        hideAuthModal();
+        document.getElementById('loadingScreen').classList.add('hidden');
+    } else {
+        showAuthModal();
+        document.getElementById('loadingScreen').classList.add('hidden');
+    }
+}
+
+function showAuthModal() {
+    document.getElementById('authModal').style.display = 'flex';
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('topBar').style.display = 'none';
+}
+
+function hideAuthModal() {
+    document.getElementById('authModal').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'grid';
+    document.getElementById('topBar').style.display = 'flex';
+}
+
+function toggleAuthMode() {
+    isSignUpMode = !isSignUpMode;
+    if (isSignUpMode) {
+        document.getElementById('authTitle').textContent = 'Create Account';
+        document.getElementById('authSubmitBtn').textContent = 'Sign Up';
+        document.getElementById('authSwitchText').innerHTML = 'Already have an account? <a onclick="toggleAuthMode()">Sign In</a>';
+    } else {
+        document.getElementById('authTitle').textContent = 'Sign In';
+        document.getElementById('authSubmitBtn').textContent = 'Sign In';
+        document.getElementById('authSwitchText').innerHTML = 'Don\'t have an account? <a onclick="toggleAuthMode()">Sign Up</a>';
+    }
+    document.getElementById('authError').style.display = 'none';
+}
+
+async function handleAuth() {
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    const errorEl = document.getElementById('authError');
+
+    if (!email || !password) {
+        errorEl.textContent = 'Please fill in all fields';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    if (password.length < 6) {
+        errorEl.textContent = 'Password must be at least 6 characters';
+        errorEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        if (isSignUpMode) {
+            const { data, error } = await sb.auth.signUp({ email, password });
+            if (error) throw error;
+            
+            if (data.user) {
+                currentUser = data.user;
+                state.userId = data.user.id;
+                state.userName = email.split('@')[0];
+                await saveUserData();
+                await loadUserData();
+                hideAuthModal();
+            }
+        } else {
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            
+            currentUser = data.user;
+            await loadUserData();
+            hideAuthModal();
+        }
+        
+        errorEl.style.display = 'none';
+    } catch (error) {
+        errorEl.textContent = error.message || 'Authentication failed';
+        errorEl.style.display = 'block';
+    }
+}
+
+async function signOut() {
+    if (!confirm('Sign out? Your progress will be saved.')) return;
+    await saveUserData();
+    await sb.auth.signOut();
+    currentUser = null;
+    location.reload();
+}
 
 // --- AUDIO ENGINE ---
 let audioCtx = null;
@@ -463,48 +599,91 @@ const TYPE_FILTERS = {
 function needsFilter(url) { return url && url.includes('simple-icons'); }
 
 // --- STATE ---
-const SAVE_KEY = 'nixen_lowen_v9';
-const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [], userId: null, userName: null };
-let state = JSON.parse(localStorage.getItem(SAVE_KEY)) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [], userId: null, userName: null, chartData: [] };
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
-if (!state.userId) {
-    state.userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    saveGame();
-}
-
-function saveGame() {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-    const el = document.getElementById('saveInd');
-    el.style.opacity = '1';
-    setTimeout(() => { el.style.opacity = '0'; }, 2000);
-    updateLeaderboard();
-}
-
-function resetAll() {
-    if(confirm("Confirm Reset? This will wipe all data from Lowen LLC secure storage.")) {
-        localStorage.removeItem(SAVE_KEY);
-        location.reload();
+// --- SUPABASE DATA PERSISTENCE ---
+async function loadUserData() {
+    if (!currentUser) return;
+    
+    try {
+        const { data, error } = await sb
+            .from('user_data')
+            .select('game_state, name')
+            .eq('user_id', currentUser.id)
+            .single();
+        
+        if (error && error.code !== 'PGRST116') {
+            console.error('Load error:', error);
+            return;
+        }
+        
+        if (data && data.game_state) {
+            state = { ...DEFAULT_STATE, ...data.game_state };
+            state.userId = currentUser.id;
+            if (data.name) state.userName = data.name;
+        } else {
+            state.userId = currentUser.id;
+            state.userName = currentUser.email.split('@')[0];
+        }
+        
+        document.getElementById('userDisplayName').textContent = state.userName || 'Trader';
+        renderStats();
+        renderMarket();
+        renderPortfolio();
+        renderHistory();
+    } catch (e) {
+        console.error('Load failed:', e);
     }
 }
 
-// --- SUPABASE LEADERBOARD ---
-// Run this DDL in Supabase SQL editor if table doesn't exist:
-// CREATE TABLE IF NOT EXISTS leaderboard (
-//   user_id TEXT PRIMARY KEY,
-//   name TEXT NOT NULL,
-//   net_worth FLOAT8 NOT NULL DEFAULT 50000,
-//   gain FLOAT8 NOT NULL DEFAULT 0,
-//   updated_at TIMESTAMPTZ DEFAULT now()
-// );
-// ALTER TABLE leaderboard ENABLE ROW LEVEL SECURITY;
-// CREATE POLICY "allow_all" ON leaderboard FOR ALL USING (true) WITH CHECK (true);
+async function saveUserData() {
+    if (!currentUser) return;
+    
+    try {
+        const { error } = await sb
+            .from('user_data')
+            .upsert({
+                user_id: currentUser.id,
+                game_state: state,
+                name: state.userName,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+        
+        if (error) console.error('Save error:', error);
+        else {
+            const el = document.getElementById('saveInd');
+            el.style.opacity = '1';
+            setTimeout(() => { el.style.opacity = '0'; }, 2000);
+        }
+        
+        await updateLeaderboard();
+    } catch (e) {
+        console.error('Save failed:', e);
+    }
+}
 
-// Schema probe — figure out actual column names at runtime
-let lbCols = null; // cached after first successful probe
+function resetAll() {
+    if(confirm("Confirm Reset? This will wipe all your trading data.")) {
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        state.userId = currentUser.id;
+        state.userName = currentUser.email.split('@')[0];
+        mainChart.data.labels = [];
+        mainChart.data.datasets[0].data = [];
+        mainChart.update();
+        saveUserData();
+        renderStats();
+        renderMarket();
+        renderPortfolio();
+        renderHistory();
+    }
+}
+
+// --- LEADERBOARD ---
+let lbCols = null;
 
 async function probeLBSchema() {
     if (lbCols) return lbCols;
-    // Fetch one row with all columns to see what exists
     const { data, error } = await sb.from('leaderboard').select('*').limit(1);
     if (error) {
         console.error('Schema probe error:', error.message);
@@ -512,8 +691,6 @@ async function probeLBSchema() {
     }
     if (data && data.length > 0) {
         const keys = Object.keys(data[0]);
-        console.log('LB columns found:', keys);
-        // Map expected names to actual names
         lbCols = {
             user_id:    keys.find(k => /user.?id|uid/i.test(k)) || keys[0],
             name:       keys.find(k => /^name$/i.test(k)) || 'name',
@@ -522,15 +699,13 @@ async function probeLBSchema() {
             updated_at: keys.find(k => /updated/i.test(k)) || null,
         };
     } else {
-        // Table empty — assume our DDL column names are correct
         lbCols = { user_id: 'user_id', name: 'name', net_worth: 'net_worth', gain: 'gain', updated_at: 'updated_at' };
     }
-    console.log('Resolved LB cols:', lbCols);
     return lbCols;
 }
 
 async function updateLeaderboard() {
-    if (!state.userName) return;
+    if (!state.userName || !currentUser) return;
     let portVal = 0;
     Object.keys(state.holdings).forEach(id => {
         portVal += (state.holdings[id].qty || 0) * (livePrices[id] || 0);
@@ -543,7 +718,7 @@ async function updateLeaderboard() {
         if (!cols) return;
 
         const row = {};
-        row[cols.user_id]   = state.userId;
+        row[cols.user_id]   = currentUser.id;
         row[cols.name]      = state.userName;
         row[cols.net_worth] = netWorth;
         row[cols.gain]      = gain;
@@ -557,6 +732,8 @@ async function updateLeaderboard() {
 }
 
 async function renderLeaderboard() {
+    if (!currentUser) return;
+    
     const container = document.getElementById('leaderboardList');
     const statusEl  = document.getElementById('lbStatus');
 
@@ -587,7 +764,7 @@ async function renderLeaderboard() {
         let html = '';
         data.forEach((entry, index) => {
             const rank = index + 1;
-            const isCurrentUser = entry[cols.user_id] === state.userId;
+            const isCurrentUser = entry[cols.user_id] === currentUser.id;
             const netWorthVal = entry[cols.net_worth] || 50000;
             const gainVal     = entry[cols.gain] || 0;
             const nameVal     = entry[cols.name] || 'Unknown';
@@ -624,8 +801,7 @@ async function renderLeaderboard() {
         container.innerHTML = `
             <div style="text-align:center; padding:30px; color:#94a3b8;">
                 <p style="font-weight:600; color:#ef4444;">Leaderboard error</p>
-                <code style="font-size:0.7rem; background:#f1f5f9; padding:8px; border-radius:6px; display:block; margin-top:8px; text-align:left; color:#334155;">${e.message || JSON.stringify(e)}</code>
-                <p style="font-size:0.75rem; margin-top:10px;">Run the DDL in Supabase SQL editor (see JS comments)</p>
+                <p style="font-size:0.75rem; margin-top:10px;">Ensure tables exist in Supabase</p>
             </div>`;
     }
 }
@@ -642,15 +818,15 @@ function saveName() {
     if (!name || name.length < 2) { alert('Please enter a name (min 2 characters)'); return; }
     state.userName = name;
     document.getElementById('userDisplayName').innerText = name;
-    saveGame();
+    saveUserData();
     closeNameModal();
     renderLeaderboard();
 }
 
-if (!state.userName) { setTimeout(() => openNameModal(), 500); }
-
 document.getElementById('nameModal').addEventListener('click', function(e) { if(e.target === this) closeNameModal(); });
 document.getElementById('nameInput').addEventListener('keypress', function(e) { if(e.key === 'Enter') saveName(); });
+document.getElementById('authEmail').addEventListener('keypress', function(e) { if(e.key === 'Enter') handleAuth(); });
+document.getElementById('authPassword').addEventListener('keypress', function(e) { if(e.key === 'Enter') handleAuth(); });
 
 // --- CORE ENGINE ---
 let livePrices = {};
@@ -658,7 +834,6 @@ ASSETS.forEach(a => livePrices[a.id] = a.price);
 let pendingOrders = [];
 let currentFilter = 'all';
 let currentTrade = null;
-let newsTimer = 0;
 
 function updateMarket() {
     ASSETS.forEach(a => {
@@ -713,7 +888,7 @@ function executeTrade(o) {
             logHistory("SELL", o.id, o.qty, p);
         }
     }
-    saveGame();
+    saveUserData();
     renderStats();
     renderPortfolio();
     renderHistory();
@@ -736,13 +911,12 @@ function sellAll() {
         logHistory("SELL", id, h.qty, p);
     });
     state.holdings = {};
-    saveGame(); renderStats(); renderPortfolio();
+    saveUserData(); renderStats(); renderPortfolio();
 }
 
 // --- RENDERING ---
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
-// Adless Games SVG logo (gamepad icon, blue bg)
 function adlessLogoSVG() {
     return `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
         <rect width="40" height="40" rx="6" fill="#1d9bf0"/>
@@ -890,8 +1064,12 @@ const mainChart = new Chart(ctxMain, {
     data: { labels: [], datasets: [{ label: 'Equity', data: [], borderColor: '#2563eb', backgroundColor: gradient, fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false} }, scales: { x: {display:false}, y: { grid: {color: '#f1f5f9'} } }, animation: false }
 });
+
 function updateChart(nw) {
-    if (mainChart.data.labels.length > 80) { mainChart.data.labels.shift(); mainChart.data.datasets[0].data.shift(); }
+    if (mainChart.data.labels.length > 80) { 
+        mainChart.data.labels.shift(); 
+        mainChart.data.datasets[0].data.shift(); 
+    }
     mainChart.data.labels.push('');
     mainChart.data.datasets[0].data.push(nw);
     mainChart.update('none');
@@ -972,13 +1150,26 @@ document.getElementById("confirmTradeBtn").onclick = () => {
 document.getElementById("tradeModal").addEventListener('click', function(e) { if(e.target === this) closeModal(); });
 
 // --- RUN ---
-setInterval(() => { updateMarket(); processPending(); updateNews(); }, 100);
-setInterval(() => { renderStats(); renderMarket(); renderPortfolio(); }, 1000);
-setInterval(saveGame, 4000);
-setInterval(renderLeaderboard, 8000);
+checkAuth();
 
-if (state.userName) document.getElementById('userDisplayName').innerText = state.userName;
-renderStats(); renderMarket(); renderPortfolio(); renderHistory(); renderLeaderboard();
+setInterval(() => { 
+    if (currentUser) {
+        updateMarket(); 
+        processPending(); 
+        updateNews(); 
+    }
+}, 100);
+
+setInterval(() => { 
+    if (currentUser) {
+        renderStats(); 
+        renderMarket(); 
+        renderPortfolio(); 
+    }
+}, 1000);
+
+setInterval(() => { if (currentUser) saveUserData(); }, 4000);
+setInterval(() => { if (currentUser) renderLeaderboard(); }, 8000);
 </script>
 </body>
 </html>
