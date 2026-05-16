@@ -979,6 +979,19 @@ setInterval(renderLeaderboard, 8000);
 
 if (state.userName) document.getElementById('userDisplayName').innerText = state.userName;
 renderStats(); renderMarket(); renderPortfolio(); renderHistory(); renderLeaderboard();
-</script>
+<script>
+(function() {
+    const allowed = ['https://nixenstocksim.pages.dev', 'www.yourdomain.com', 'localhost'];
+    const host = window.location.hostname.toLowerCase();
+    if (!allowed.includes(host)) {
+        document.body.innerHTML = '';
+        document.title = '';
+        throw new Error('Unauthorized host');
+    }
+})();
+
+// --- SUPABASE INIT ---
+const SUPA_URL = 'https://cjbxzzniGvrpqlgsHvei.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 </body>
 </html>
