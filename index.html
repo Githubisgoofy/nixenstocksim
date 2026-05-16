@@ -168,6 +168,23 @@
 
 <div class="watermark-bg">LOWEN LLC</div>
 
+<div id="officialBanner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; background:#0f172a; color:white; padding:12px 20px; text-align:center; font-size:0.85rem; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+    ⚠️ You are viewing an unofficial copy. The real app is at
+    <a href="https://nixenstocksim.pages.dev/" style="color:#60a5fa; text-decoration:underline; margin:0 6px;" target="_blank">nixenstocksim.pages.dev</a>
+    <a href="https://nixenstocksim.pages.dev/" style="background:#2563eb; color:white; padding:4px 12px; border-radius:4px; text-decoration:none;">Go to Official Site →</a>
+    <span onclick="document.getElementById('officialBanner').style.display='none'" style="cursor:pointer; margin-left:15px; opacity:0.6;">✕</span>
+</div>
+
+<script>
+(function() {
+    var official = 'nixenstocksim.pages.dev';
+    var host = window.location.hostname.toLowerCase();
+    if (host !== official && host !== 'localhost') {
+        document.getElementById('officialBanner').style.display = 'block';
+    }
+})();
+</script>
+
 <div class="user-bar" id="topBar">
     <div class="user-info">
         <div class="user-avatar"><i class="fas fa-building"></i></div>
