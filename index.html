@@ -350,6 +350,17 @@
 </div>
 
 <script>
+// --- DOMAIN LOCK ---
+(function() {
+    const allowed = ['nixenstocksim.pages.dev', 'localhost'];
+    const host = window.location.hostname.toLowerCase();
+    if (!allowed.includes(host)) {
+        document.body.innerHTML = '';
+        document.title = '';
+        throw new Error('Unauthorized host');
+    }
+})();
+
 // --- SUPABASE INIT ---
 const SUPA_URL = 'https://cjbxzzniGvrpqlgsHvei.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqYnh6em5pZ3ZycHFsZ3NodmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTQ1MDMsImV4cCI6MjA5Mjk5MDUwM30.r5ECMDKf_hdzDicB5LNrkjkz-xzL6308EAB6zO0LSv0';
@@ -488,23 +499,10 @@ function resetAll() {
 }
 
 // --- SUPABASE LEADERBOARD ---
-// Run this DDL in Supabase SQL editor if table doesn't exist:
-// CREATE TABLE IF NOT EXISTS leaderboard (
-//   user_id TEXT PRIMARY KEY,
-//   name TEXT NOT NULL,
-//   net_worth FLOAT8 NOT NULL DEFAULT 50000,
-//   gain FLOAT8 NOT NULL DEFAULT 0,
-//   updated_at TIMESTAMPTZ DEFAULT now()
-// );
-// ALTER TABLE leaderboard ENABLE ROW LEVEL SECURITY;
-// CREATE POLICY "allow_all" ON leaderboard FOR ALL USING (true) WITH CHECK (true);
-
-// Schema probe — figure out actual column names at runtime
-let lbCols = null; // cached after first successful probe
+let lbCols = null;
 
 async function probeLBSchema() {
     if (lbCols) return lbCols;
-    // Fetch one row with all columns to see what exists
     const { data, error } = await sb.from('leaderboard').select('*').limit(1);
     if (error) {
         console.error('Schema probe error:', error.message);
@@ -512,8 +510,6 @@ async function probeLBSchema() {
     }
     if (data && data.length > 0) {
         const keys = Object.keys(data[0]);
-        console.log('LB columns found:', keys);
-        // Map expected names to actual names
         lbCols = {
             user_id:    keys.find(k => /user.?id|uid/i.test(k)) || keys[0],
             name:       keys.find(k => /^name$/i.test(k)) || 'name',
@@ -522,10 +518,8 @@ async function probeLBSchema() {
             updated_at: keys.find(k => /updated/i.test(k)) || null,
         };
     } else {
-        // Table empty — assume our DDL column names are correct
         lbCols = { user_id: 'user_id', name: 'name', net_worth: 'net_worth', gain: 'gain', updated_at: 'updated_at' };
     }
-    console.log('Resolved LB cols:', lbCols);
     return lbCols;
 }
 
@@ -625,7 +619,6 @@ async function renderLeaderboard() {
             <div style="text-align:center; padding:30px; color:#94a3b8;">
                 <p style="font-weight:600; color:#ef4444;">Leaderboard error</p>
                 <code style="font-size:0.7rem; background:#f1f5f9; padding:8px; border-radius:6px; display:block; margin-top:8px; text-align:left; color:#334155;">${e.message || JSON.stringify(e)}</code>
-                <p style="font-size:0.75rem; margin-top:10px;">Run the DDL in Supabase SQL editor (see JS comments)</p>
             </div>`;
     }
 }
@@ -742,12 +735,10 @@ function sellAll() {
 // --- RENDERING ---
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
-// Adless Games SVG logo (gamepad icon, blue bg)
 function adlessLogoSVG() {
     return `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
         <rect width="40" height="40" rx="6" fill="#1d9bf0"/>
         <g transform="translate(5,12)" fill="white">
-            <path d="M15 4C8.4 4 3 7.6 3 12c0 2.2 1.3 4.2 3.5 5.7L5.5 21l3.5-2.1c1.9.6 4 1.1 6 1.1 6.6 0 12-3.6 12-8S21.6 4 15 4z" fill="none"/>
             <rect x="2" y="2" width="26" height="16" rx="8" fill="white" fill-opacity="0.9"/>
             <rect x="5" y="9" width="6" height="2" rx="1" fill="#1d9bf0"/>
             <rect x="7" y="7" width="2" height="6" rx="1" fill="#1d9bf0"/>
@@ -979,19 +970,6 @@ setInterval(renderLeaderboard, 8000);
 
 if (state.userName) document.getElementById('userDisplayName').innerText = state.userName;
 renderStats(); renderMarket(); renderPortfolio(); renderHistory(); renderLeaderboard();
-<script>
-(function() {
-    const allowed = ['https://nixenstocksim.pages.dev', 'www.yourdomain.com', 'localhost'];
-    const host = window.location.hostname.toLowerCase();
-    if (!allowed.includes(host)) {
-        document.body.innerHTML = '';
-        document.title = '';
-        throw new Error('Unauthorized host');
-    }
-})();
-
-// --- SUPABASE INIT ---
-const SUPA_URL = 'https://cjbxzzniGvrpqlgsHvei.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+</script>
 </body>
 </html>
