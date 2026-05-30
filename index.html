@@ -24,7 +24,7 @@
     --silver: #94a3b8;
     --bronze: #f97316;
     --bj-green: #0f5132;
-    --bj-felt: #166534;
+    --bj-felt: #166634;
 }
 * { box-sizing: border-box; }
 body {
@@ -286,16 +286,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 .legal-footer strong { color: var(--primary); }
 
 /* BLACKJACK */
-#page-blackjack {
-    max-width: 780px;
-    margin: 0 auto;
-}
-.bj-outer {
-    background: radial-gradient(ellipse at 50% 0%, #1a3a1a 0%, #0d1f0d 100%);
-    border-radius: 24px;
-    padding: 6px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.3);
-}
+#page-blackjack { max-width: 780px; margin: 0 auto; }
 .bj-table {
     background: radial-gradient(ellipse at 50% 30%, #1e6b3a 0%, #145228 50%, #0d3d1e 100%);
     border-radius: 20px; padding: 28px;
@@ -317,54 +308,15 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
     white-space: nowrap;
 }
 .bj-table > * { position: relative; z-index: 1; }
-
-/* felt texture overlay */
-.bj-felt-overlay {
-    position: absolute; inset: 0; border-radius: 20px;
-    background-image: repeating-linear-gradient(
-        45deg,
-        rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px,
-        transparent 1px, transparent 6px
-    );
-    pointer-events: none; z-index: 0;
-}
-
-.bj-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px;
-}
-.bj-title {
-    color: rgba(212,175,55,0.9); font-size: 1rem; font-weight: 900;
-    letter-spacing: 3px; text-transform: uppercase;
-}
-.bj-shoe-indicator {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(0,0,0,0.3); border-radius: 20px; padding: 4px 12px;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-.bj-shoe-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.bj-shoe-text { color: rgba(255,255,255,0.5); font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; }
-
 .bj-stats-row {
-    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 22px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 22px;
 }
 .bj-stat {
     background: rgba(0,0,0,0.35); border-radius: 10px; padding: 10px 8px; text-align: center;
     border: 1px solid rgba(255,255,255,0.06);
-    backdrop-filter: blur(4px);
 }
 .bj-stat .val { color: white; font-weight: 800; font-size: 0.9rem; }
-.bj-stat .val.gold { color: #fbbf24; }
 .bj-stat .lbl { color: rgba(255,255,255,0.4); font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
-
-/* divider */
-.bj-divider {
-    height: 1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
-    margin: 16px 0;
-}
-
-.bj-zone { margin-bottom: 18px; }
 .bj-section-label {
     color: rgba(212,175,55,0.6); font-size: 0.6rem;
     font-weight: 900; text-transform: uppercase;
@@ -375,7 +327,6 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
     content: ''; flex: 1; height: 1px;
     background: linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
 }
-
 .bj-hand {
     display: flex; gap: 8px; flex-wrap: wrap;
     min-height: 100px; align-items: flex-end; margin-bottom: 8px;
@@ -391,16 +342,6 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
     border: 1px solid #e2e8f0;
     position: relative;
 }
-.bj-card .rank-tl {
-    position: absolute; top: 5px; left: 7px;
-    font-size: 0.75rem; font-weight: 900; line-height: 1;
-}
-.bj-card .rank-br {
-    position: absolute; bottom: 5px; right: 7px;
-    font-size: 0.75rem; font-weight: 900; line-height: 1;
-    transform: rotate(180deg);
-}
-.bj-card .suit-center { font-size: 1.6rem; line-height: 1; }
 @keyframes cardDeal {
     from { transform: translateY(-30px) rotate(-8deg) scale(0.85); opacity: 0; }
     to   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
@@ -423,33 +364,13 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
     border: 1px solid rgba(255,255,255,0.1);
 }
 .bj-card.back::after { content: '🂠'; font-size: 2.2rem; color: rgba(255,255,255,0.15); }
-
-.bj-score-row { display: flex; align-items: center; gap: 10px; }
 .bj-score {
     color: rgba(255,255,255,0.95); font-weight: 800; font-size: 1rem;
     background: rgba(0,0,0,0.3); border-radius: 6px;
     padding: 3px 10px; display: inline-block;
     border: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 14px;
 }
-.bj-score.bust { color: #ef4444; border-color: rgba(239,68,68,0.3); }
-.bj-score.bj { color: #fbbf24; border-color: rgba(251,191,36,0.4); }
-.bj-score-tag {
-    font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
-    padding: 2px 7px; border-radius: 4px; text-transform: uppercase;
-}
-.bj-score-tag.bust { background: rgba(239,68,68,0.2); color: #ef4444; }
-.bj-score-tag.bj   { background: rgba(251,191,36,0.2); color: #fbbf24; }
-
-/* BET AREA */
-.bj-bet-area {
-    background: rgba(0,0,0,0.25); border-radius: 14px; padding: 16px;
-    border: 1px solid rgba(255,255,255,0.07); margin-bottom: 16px;
-}
-.bj-bet-label {
-    color: rgba(212,175,55,0.6); font-size: 0.58rem; font-weight: 900;
-    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;
-}
-.bj-chips-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 .bj-chip {
     width: 52px; height: 52px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -463,34 +384,30 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
     position: absolute; inset: 4px; border-radius: 50%;
     border: 2px dashed rgba(255,255,255,0.35);
 }
-.bj-chip:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 8px 0 rgba(0,0,0,0.4), 0 0 0 3px rgba(255,255,255,0.2), 0 0 0 6px rgba(0,0,0,0.2); }
+.bj-chip:hover { transform: translateY(-4px) scale(1.08); }
 .bj-chip:active { transform: translateY(-1px) scale(0.97); }
-.bj-chip.disabled { opacity: 0.3; pointer-events: none; }
 .bj-chip.c10  { background: radial-gradient(circle at 35% 35%, #3b82f6, #1d4ed8); }
 .bj-chip.c25  { background: radial-gradient(circle at 35% 35%, #22c55e, #15803d); }
 .bj-chip.c50  { background: radial-gradient(circle at 35% 35%, #f87171, #b91c1c); }
 .bj-chip.c100 { background: radial-gradient(circle at 35% 35%, #d97706, #92400e); }
 .bj-chip.c500 { background: radial-gradient(circle at 35% 35%, #a78bfa, #4c1d95); }
-
-.bj-bet-info {
-    display: flex; align-items: center; justify-content: space-between;
+.bj-bet-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: rgba(0,0,0,0.25); border-radius: 14px; padding: 14px;
+    border: 1px solid rgba(255,255,255,0.07); margin-bottom: 16px;
 }
 .bj-bet-display {
-    color: white; font-size: 1.3rem; font-weight: 900;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    color: white; font-size: 1.1rem; font-weight: 900;
+    margin-left: auto;
 }
 .bj-bet-display span { color: #fbbf24; }
-.bj-bet-actions { display: flex; gap: 7px; }
-.bj-ghost-btn {
+.bj-clear-btn {
     background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
     border: 1px solid rgba(255,255,255,0.15); border-radius: 7px;
     padding: 6px 12px; font-size: 0.72rem; font-weight: 700;
     cursor: pointer; transition: 0.15s;
 }
-.bj-ghost-btn:hover { background: rgba(255,255,255,0.15); }
-.bj-ghost-btn.repeat { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
-
-/* ACTION BUTTONS */
+.bj-clear-btn:hover { background: rgba(255,255,255,0.15); }
 .bj-controls { display: flex; gap: 10px; flex-wrap: wrap; }
 .bj-btn {
     padding: 12px 22px; border: none; border-radius: 10px;
@@ -506,15 +423,9 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 .bj-btn:active { transform: translateY(2px) scale(0.97); }
 .bj-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 .bj-btn-deal  { background: linear-gradient(135deg, #f8fafc, #e2e8f0); color: #0f172a; box-shadow: 0 4px 0 #94a3b8; }
-.bj-btn-hit   { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 4px 0 #166534; }
+.bj-btn-hit   { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 4px 0 #166634; }
 .bj-btn-stand { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 0 #92400e; }
 .bj-btn-double{ background: linear-gradient(135deg, #a78bfa, #7c3aed); color: white; box-shadow: 0 4px 0 #4c1d95; }
-.bj-btn-deal:active  { box-shadow: 0 1px 0 #94a3b8; }
-.bj-btn-hit:active   { box-shadow: 0 1px 0 #166534; }
-.bj-btn-stand:active { box-shadow: 0 1px 0 #92400e; }
-.bj-btn-double:active{ box-shadow: 0 1px 0 #4c1d95; }
-
-/* RESULT OVERLAY */
 .bj-result {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%,-50%) scale(0);
@@ -530,9 +441,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 .bj-result.win  { border: 2px solid #22c55e; box-shadow: 0 0 30px rgba(34,197,94,0.3); }
 .bj-result.lose { border: 2px solid #ef4444; box-shadow: 0 0 30px rgba(239,68,68,0.3); }
 .bj-result.push { border: 2px solid #f59e0b; box-shadow: 0 0 30px rgba(245,158,11,0.3); }
-.bj-result .res-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; opacity: 0.5; text-transform: uppercase; margin-bottom: 4px; }
 .bj-result .res-amount { font-size: 1rem; margin-top: 6px; font-weight: 800; opacity: 0.85; }
-
 .bj-note {
     color: rgba(212,175,55,0.35); font-size: 0.62rem;
     font-weight: 700; margin-top: 18px; text-align: center;
@@ -754,7 +663,6 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 <script>
 // ============================================================
 // SUPABASE SETUP
-// Replace these with your actual Supabase project URL and anon key
 // ============================================================
 const SUPA_URL = 'https://cjbxzznigvrpqlgshvei.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqYnh6em5pZ3ZycHFsZ3NodmVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTQ1MDMsImV4cCI6MjA5Mjk5MDUwM30.r5ECMDKf_hdzDicB5LNrkjkz-xzL6308EAB6zO0LSv0';
@@ -762,27 +670,26 @@ let sb = null;
 try { sb = supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) { console.warn('Supabase init failed:', e); }
 
 // ============================================================
-// AUTH — usernames stored with original casing, compared lowercase
-// Accounts persisted to Supabase `users` table if connected,
-// otherwise falls back to localStorage only.
+// AUTH
 // ============================================================
-const AUTH_KEY   = 'nixen_users_v1';
+const AUTH_KEY    = 'nixen_users_v1';
 const SESSION_KEY = 'nixen_session_v1';
 
-function getLocalUsers() { return JSON.parse(localStorage.getItem(AUTH_KEY) || '{}'); }
-function saveLocalUsers(u) { localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
-function getSession() { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
-function setSession(u, displayName) { localStorage.setItem(SESSION_KEY, JSON.stringify({username: u, displayName: displayName})); }
-function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function getLocalUsers()       { return JSON.parse(localStorage.getItem(AUTH_KEY) || '{}'); }
+function saveLocalUsers(u)     { localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
+function getSession()          { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
+function setSession(u, dn)     { localStorage.setItem(SESSION_KEY, JSON.stringify({ username: u, displayName: dn })); }
+function clearSession()        { localStorage.removeItem(SESSION_KEY); }
 
 function switchAuthTab(tab) {
-    document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='signup'&&i===1)));
-    document.getElementById('loginPanel').style.display = tab==='login' ? 'block' : 'none';
-    document.getElementById('signupPanel').style.display = tab==='signup' ? 'block' : 'none';
+    document.querySelectorAll('.auth-tab').forEach((t, i) =>
+        t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'signup' && i === 1)));
+    document.getElementById('loginPanel').style.display  = tab === 'login'  ? 'block' : 'none';
+    document.getElementById('signupPanel').style.display = tab === 'signup' ? 'block' : 'none';
     clearAuthMsgs();
 }
 function clearAuthMsgs() {
-    ['loginError','signupError','signupSuccess'].forEach(id => {
+    ['loginError', 'signupError', 'signupSuccess'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
@@ -793,81 +700,86 @@ function showMsg(id, msg, type) {
     el.textContent = msg; el.className = 'auth-msg ' + type; el.style.display = 'block';
     if (type === 'error') setTimeout(() => el.style.display = 'none', 4000);
 }
-function setAuthLoading(isLoading) {
-    ['loginBtn','signupBtn'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.disabled = isLoading;
+function setAuthLoading(v) {
+    ['loginBtn', 'signupBtn'].forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.disabled = v;
     });
 }
 
+// ── SIGNUP ──────────────────────────────────────────────────
 async function doSignup() {
     const rawName = document.getElementById('signupUser').value.trim();
-    const p  = document.getElementById('signupPass').value;
-    const p2 = document.getElementById('signupPass2').value;
-
-    // Validate — check lowercase version for uniqueness, preserve original case for display
+    const p       = document.getElementById('signupPass').value;
+    const p2      = document.getElementById('signupPass2').value;
     const nameLower = rawName.toLowerCase();
-    if (rawName.length < 2) { showMsg('signupError', 'Username min 2 characters.', 'error'); return; }
-    if (!/^[a-zA-Z0-9_]+$/.test(rawName)) { showMsg('signupError', 'Letters, numbers and underscores only.', 'error'); return; }
-    if (p.length < 4) { showMsg('signupError', 'Password min 4 characters.', 'error'); return; }
-    if (p !== p2) { showMsg('signupError', 'Passwords do not match.', 'error'); return; }
+
+    if (rawName.length < 2)                      { showMsg('signupError', 'Username min 2 characters.', 'error'); return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(rawName))        { showMsg('signupError', 'Letters, numbers and underscores only.', 'error'); return; }
+    if (p.length < 4)                             { showMsg('signupError', 'Password min 4 characters.', 'error'); return; }
+    if (p !== p2)                                 { showMsg('signupError', 'Passwords do not match.', 'error'); return; }
 
     setAuthLoading(true);
 
-    // Check local storage first (offline fallback)
     const localUsers = getLocalUsers();
     if (localUsers[nameLower]) { showMsg('signupError', 'Username already taken.', 'error'); setAuthLoading(false); return; }
 
-    // Try Supabase users table if available
-    if (sb && SUPA_URL !== 'https://YOUR_PROJECT.supabase.co') {
+    const pwHash = btoa(p);
+
+    // Try Supabase
+    if (sb) {
         try {
-            // Check if username exists (case-insensitive via lower() or ilike)
-            const { data: existing } = await sb
+            const { data: existing, error: selErr } = await sb
                 .from('users')
                 .select('username_lower')
                 .eq('username_lower', nameLower)
                 .limit(1);
+
+            if (selErr) throw selErr;
 
             if (existing && existing.length > 0) {
                 showMsg('signupError', 'Username already taken.', 'error');
                 setAuthLoading(false); return;
             }
 
-            const { error } = await sb.from('users').insert({
-                username_lower: nameLower,
+            const { error: insErr } = await sb.from('users').insert({
+                username_lower:   nameLower,
                 username_display: rawName,
-                pw_hash: btoa(p),  // NOTE: btoa is NOT real hashing — upgrade to bcrypt server-side for prod
-                created_at: new Date().toISOString()
+                pw_hash:          pwHash,
+                created_at:       new Date().toISOString()
             });
-            if (error) throw error;
+            if (insErr) throw insErr;
+
         } catch (e) {
-            // Supabase failed — fall through to localStorage only
-            console.warn('Supabase signup failed, using localStorage:', e.message);
+            // Supabase unavailable / RLS not set — localStorage-only fallback
+            console.warn('Supabase signup failed, localStorage only:', e.message);
         }
     }
 
-    // Always save locally too
-    localUsers[nameLower] = { displayName: rawName, pw: btoa(p), created: Date.now() };
+    // Always persist locally so the same device works offline
+    localUsers[nameLower] = { displayName: rawName, pw: pwHash, created: Date.now() };
     saveLocalUsers(localUsers);
 
     showMsg('signupSuccess', 'Account created! Signing you in...', 'success');
     setTimeout(() => loginUser(nameLower, rawName), 700);
 }
 
+// ── LOGIN ────────────────────────────────────────────────────
 async function doLogin() {
-    const rawInput = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value;
+    const rawInput  = document.getElementById('loginUser').value.trim();
+    const p         = document.getElementById('loginPass').value;
     const nameLower = rawInput.toLowerCase();
 
     if (!rawInput || !p) { showMsg('loginError', 'Please enter username and password.', 'error'); return; }
 
     setAuthLoading(true);
 
-    // Try Supabase first
-    let displayName = rawInput;  // fallback
+    const pwHash = btoa(p);
+    let displayName   = rawInput;
     let authenticated = false;
 
-    if (sb && SUPA_URL !== 'https://YOUR_PROJECT.supabase.co') {
+    // ── 1. Try Supabase ──────────────────────────────────────
+    if (sb) {
         try {
             const { data, error } = await sb
                 .from('users')
@@ -875,58 +787,65 @@ async function doLogin() {
                 .eq('username_lower', nameLower)
                 .limit(1);
 
-            if (!error && data && data.length > 0) {
-                const user = data[0];
-                if (user.pw_hash === btoa(p)) {
-                    displayName = user.username_display;
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                // Row found in Supabase — only trust Supabase result, no further fallback
+                if (data[0].pw_hash === pwHash) {
+                    displayName   = data[0].username_display;
                     authenticated = true;
+                    // Sync to localStorage so offline sessions work
+                    const lu = getLocalUsers();
+                    lu[nameLower] = { displayName: data[0].username_display, pw: pwHash, created: Date.now() };
+                    saveLocalUsers(lu);
                 } else {
                     showMsg('loginError', 'Incorrect username or password.', 'error');
                     setAuthLoading(false); return;
                 }
             }
+            // data.length === 0 → user not in Supabase yet, fall through to localStorage
         } catch (e) {
-            console.warn('Supabase login failed, falling back to localStorage:', e.message);
+            console.warn('Supabase login error, falling back to localStorage:', e.message);
         }
     }
 
-    // Fallback to localStorage
+    // ── 2. localStorage fallback (offline / Supabase row not found) ──
     if (!authenticated) {
         const localUsers = getLocalUsers();
-        if (!localUsers[nameLower] || localUsers[nameLower].pw !== btoa(p)) {
+        if (!localUsers[nameLower] || localUsers[nameLower].pw !== pwHash) {
             showMsg('loginError', 'Incorrect username or password.', 'error');
             setAuthLoading(false); return;
         }
-        displayName = localUsers[nameLower].displayName || rawInput;
+        displayName   = localUsers[nameLower].displayName || rawInput;
         authenticated = true;
     }
 
     loginUser(nameLower, displayName);
 }
 
+// ── OPEN APP ─────────────────────────────────────────────────
 function loginUser(usernameLower, displayName) {
     setSession(usernameLower, displayName);
     const as = document.getElementById('authScreen');
     as.style.opacity = '0'; as.style.transition = 'opacity 0.3s';
     setTimeout(() => {
         as.style.display = 'none';
-        document.getElementById('topBar').style.display = 'flex';
-        document.getElementById('pageTabs').style.display = 'flex';
+        document.getElementById('topBar').style.display    = 'flex';
+        document.getElementById('pageTabs').style.display  = 'flex';
         document.getElementById('page-market').style.display = 'grid';
         document.getElementById('appFooter').style.display = 'flex';
         document.getElementById('userDisplayName').textContent = displayName;
-        currentUser = usernameLower;
+        currentUser        = usernameLower;
         currentDisplayName = displayName;
         loadUserState();
         loadBJState();
-        // Render everything after state is loaded
         renderStats();
         renderMarket();
         renderPortfolio();
         renderHistory();
         updateBJStats();
         renderLeaderboard();
-        setAuthLoading(false);
+        setAuthLoading(false); // FIX: was missing, left button disabled forever
     }, 300);
 }
 
@@ -936,21 +855,21 @@ function doLogout() {
     location.reload();
 }
 
-// Auto-login from session
-(function() {
+// Auto-login from stored session
+(function () {
     const s = getSession();
-    if (s && s.username) {
-        // Verify still exists locally
-        const localUsers = getLocalUsers();
-        const displayName = s.displayName || (localUsers[s.username] && localUsers[s.username].displayName) || s.username;
-        // If supabase configured we'll just trust the session; for local-only, check local store
-        if (SUPA_URL !== 'https://YOUR_PROJECT.supabase.co' || localUsers[s.username]) {
-            loginUser(s.username, displayName);
-        }
+    if (!s || !s.username) return;
+    const localUsers  = getLocalUsers();
+    const displayName = s.displayName
+        || (localUsers[s.username] && localUsers[s.username].displayName)
+        || s.username;
+    // Trust session if Supabase is configured (cross-device) or user exists locally
+    if (SUPA_URL !== 'https://YOUR_PROJECT.supabase.co' || localUsers[s.username]) {
+        loginUser(s.username, displayName);
     }
 })();
 
-document.getElementById('loginPass').addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginPass').addEventListener('keypress',  e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('signupPass2').addEventListener('keypress', e => { if (e.key === 'Enter') doSignup(); });
 
 // ============================================================
@@ -959,7 +878,7 @@ document.getElementById('signupPass2').addEventListener('keypress', e => { if (e
 function switchPage(name, btn) {
     document.querySelectorAll('.page-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('page-market').style.display = name === 'market' ? 'grid' : 'none';
+    document.getElementById('page-market').style.display    = name === 'market'    ? 'grid'  : 'none';
     document.getElementById('page-blackjack').style.display = name === 'blackjack' ? 'block' : 'none';
     if (name === 'blackjack') updateBJStats();
 }
@@ -967,9 +886,8 @@ function switchPage(name, btn) {
 // ============================================================
 // GAME STATE
 // ============================================================
-let currentUser = null;
-let currentDisplayName = null;
-const SAVE_PREFIX = 'nixenstock_v12_';
+let currentUser = null, currentDisplayName = null;
+const SAVE_PREFIX   = 'nixenstock_v12_';
 function stateKey() { return SAVE_PREFIX + (currentUser || 'guest'); }
 const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [] };
 let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -989,14 +907,14 @@ function resetAll() {
     if (!confirm('Reset portfolio? Returns to $50,000 starting balance. Blackjack bankroll also resets.')) return;
     localStorage.removeItem(stateKey());
     localStorage.removeItem(bjStateKey());
-    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    state   = JSON.parse(JSON.stringify(DEFAULT_STATE));
     bjState = { bankroll: 1000, wins: 0, losses: 0, pushes: 0, streak: 0, streakType: null };
     saveGame(); saveBJState();
     renderStats(); renderPortfolio(); renderHistory(); updateBJStats();
 }
 
 // ============================================================
-// LEADERBOARD (Supabase)
+// LEADERBOARD
 // ============================================================
 let lbCols = null;
 async function probeLBSchema() {
@@ -1006,14 +924,14 @@ async function probeLBSchema() {
         if (error) return null;
         const keys = data && data.length > 0 ? Object.keys(data[0]) : [];
         lbCols = {
-            user_id:    keys.find(k => /user.?id|uid/i.test(k)) || 'user_id',
-            name:       keys.find(k => /^name$/i.test(k)) || 'name',
-            net_worth:  keys.find(k => /net.?worth|networth/i.test(k)) || 'net_worth',
-            gain:       keys.find(k => /^gain$/i.test(k)) || 'gain',
-            updated_at: keys.find(k => /updated/i.test(k)) || null,
+            user_id:    keys.find(k => /user.?id|uid/i.test(k))           || 'user_id',
+            name:       keys.find(k => /^name$/i.test(k))                 || 'name',
+            net_worth:  keys.find(k => /net.?worth|networth/i.test(k))    || 'net_worth',
+            gain:       keys.find(k => /^gain$/i.test(k))                 || 'gain',
+            updated_at: keys.find(k => /updated/i.test(k))                || null,
         };
-    } catch(e) {
-        lbCols = { user_id:'user_id', name:'name', net_worth:'net_worth', gain:'gain', updated_at:'updated_at' };
+    } catch (e) {
+        lbCols = { user_id: 'user_id', name: 'name', net_worth: 'net_worth', gain: 'gain', updated_at: 'updated_at' };
     }
     return lbCols;
 }
@@ -1025,34 +943,33 @@ function calcTotalNetWorth() {
 }
 
 async function updateLeaderboard() {
-    if (!sb || !currentUser || SUPA_URL === 'https://YOUR_PROJECT.supabase.co') return;
+    if (!sb || !currentUser) return;
     const netWorth = calcTotalNetWorth();
-    const gain = ((netWorth - 51000) / 51000) * 100;
+    const gain     = ((netWorth - 51000) / 51000) * 100;
     try {
         const cols = await probeLBSchema();
         if (!cols) return;
         const row = {};
         row[cols.user_id]   = 'nixen_' + currentUser;
-        // Display original casing on leaderboard
         row[cols.name]      = currentDisplayName || currentUser;
         row[cols.net_worth] = Math.round(netWorth * 100) / 100;
         row[cols.gain]      = Math.round(gain * 10000) / 10000;
         if (cols.updated_at) row[cols.updated_at] = new Date().toISOString();
         await sb.from('leaderboard').upsert(row, { onConflict: cols.user_id });
-    } catch(e) { console.warn('LB update failed:', e.message); }
+    } catch (e) { console.warn('LB update failed:', e.message); }
 }
 
 async function renderLeaderboard() {
     const container = document.getElementById('leaderboardList');
     const statusEl  = document.getElementById('lbStatus');
-    if (!sb || SUPA_URL === 'https://YOUR_PROJECT.supabase.co') {
-        statusEl.textContent = 'Offline (configure Supabase)';
-        container.innerHTML = '<div style="text-align:center;padding:28px;color:#94a3b8;font-weight:600;">Leaderboard requires Supabase config.</div>';
+    if (!sb) {
+        statusEl.textContent = 'Offline';
+        container.innerHTML  = '<div style="text-align:center;padding:28px;color:#94a3b8;font-weight:600;">Leaderboard requires Supabase.</div>';
         return;
     }
     try {
         const cols = await probeLBSchema();
-        if (!cols) throw new Error('Schema error');
+        if (!cols) throw new Error('Schema probe failed');
         const selectCols = [cols.user_id, cols.name, cols.net_worth, cols.gain].filter(Boolean).join(', ');
         const { data, error } = await sb.from('leaderboard')
             .select(selectCols)
@@ -1068,9 +985,9 @@ async function renderLeaderboard() {
         data.forEach((entry, i) => {
             const rank = i + 1;
             const isMe = entry[cols.user_id] === 'nixen_' + currentUser;
-            const nw = entry[cols.net_worth] || 51000;
-            const g  = entry[cols.gain] || 0;
-            const nm = entry[cols.name] || 'Unknown';
+            const nw   = entry[cols.net_worth] || 51000;
+            const g    = entry[cols.gain]      || 0;
+            const nm   = entry[cols.name]      || 'Unknown';
             let rc = 'rank-other', ri = rank;
             if (rank === 1) { rc = 'rank-1'; ri = '🥇'; }
             else if (rank === 2) { rc = 'rank-2'; ri = '🥈'; }
@@ -1090,56 +1007,56 @@ async function renderLeaderboard() {
             </div>`;
         });
         container.innerHTML = html;
-    } catch(e) {
+    } catch (e) {
         statusEl.textContent = 'Error';
-        container.innerHTML = `<div style="text-align:center;padding:26px;color:#94a3b8;"><p style="font-weight:600;color:#ef4444;">Leaderboard error</p><code style="font-size:0.65rem;background:#f1f5f9;padding:7px;border-radius:6px;display:block;margin-top:7px;text-align:left;color:#334155;">${e.message}</code></div>`;
+        container.innerHTML  = `<div style="text-align:center;padding:26px;color:#94a3b8;"><p style="font-weight:600;color:#ef4444;">Leaderboard error</p><code style="font-size:0.65rem;background:#f1f5f9;padding:7px;border-radius:6px;display:block;margin-top:7px;text-align:left;color:#334155;">${e.message}</code></div>`;
     }
 }
 
 // ============================================================
 // ASSETS
 // ============================================================
-const LOGO_COLORS = { tech:'#0284c7', finance:'#4d7c0f', consumer:'#be185d', auto:'#374151', crypto:'#c2410c', gaming:'#1d9bf0' };
+const LOGO_COLORS  = { tech: '#0284c7', finance: '#4d7c0f', consumer: '#be185d', auto: '#374151', crypto: '#c2410c', gaming: '#1d9bf0' };
 const TYPE_FILTERS = {
-    tech:'invert(27%) sepia(89%) saturate(1200%) hue-rotate(193deg) brightness(97%) contrast(97%)',
-    finance:'invert(39%) sepia(72%) saturate(500%) hue-rotate(70deg) brightness(85%) contrast(90%)',
-    consumer:'invert(30%) sepia(60%) saturate(800%) hue-rotate(295deg) brightness(90%) contrast(90%)',
-    auto:'invert(20%) sepia(0%) saturate(0%) brightness(60%)',
-    crypto:'invert(33%) sepia(80%) saturate(700%) hue-rotate(10deg) brightness(95%) contrast(95%)',
+    tech:     'invert(27%) sepia(89%) saturate(1200%) hue-rotate(193deg) brightness(97%) contrast(97%)',
+    finance:  'invert(39%) sepia(72%) saturate(500%)  hue-rotate(70deg)  brightness(85%) contrast(90%)',
+    consumer: 'invert(30%) sepia(60%) saturate(800%)  hue-rotate(295deg) brightness(90%) contrast(90%)',
+    auto:     'invert(20%) sepia(0%)  saturate(0%)    brightness(60%)',
+    crypto:   'invert(33%) sepia(80%) saturate(700%)  hue-rotate(10deg)  brightness(95%) contrast(95%)',
 };
 function needsFilter(url) { return url && url.includes('simple-icons'); }
 
 const ASSETS = [
-    {id:"ADLS",n:"Adless Games",type:"gaming",price:24.00,vol:0.006,logoSvg:true},
-    {id:"AAPL",n:"Apple",type:"tech",price:175,vol:0.002,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/apple.svg"},
-    {id:"MSFT",n:"Microsoft",type:"tech",price:330,vol:0.002,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoft.svg"},
-    {id:"GOOG",n:"Alphabet",type:"tech",price:135,vol:0.002,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/google.svg"},
-    {id:"AMZN",n:"Amazon",type:"tech",price:140,vol:0.003,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazon.svg"},
-    {id:"NVDA",n:"NVIDIA",type:"tech",price:460,vol:0.005,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/nvidia.svg"},
-    {id:"META",n:"Meta",type:"tech",price:300,vol:0.004,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/meta.svg"},
-    {id:"TSLA",n:"Tesla",type:"auto",price:240,vol:0.006,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/tesla.svg"},
-    {id:"NFLX",n:"Netflix",type:"tech",price:400,vol:0.004,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/netflix.svg"},
-    {id:"JPM",n:"JPMorgan",type:"finance",price:150,vol:0.002,logo:"https://logo.clearbit.com/jpmorganchase.com"},
-    {id:"V",n:"Visa",type:"finance",price:240,vol:0.001,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/visa.svg"},
-    {id:"MA",n:"Mastercard",type:"finance",price:400,vol:0.002,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mastercard.svg"},
-    {id:"WMT",n:"Walmart",type:"consumer",price:160,vol:0.001,logo:"https://logo.clearbit.com/walmart.com"},
-    {id:"KO",n:"Coca-Cola",type:"consumer",price:58,vol:0.001,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/cocacola.svg"},
-    {id:"PEP",n:"PepsiCo",type:"consumer",price:170,vol:0.001,logo:"https://logo.clearbit.com/pepsico.com"},
-    {id:"TM",n:"Toyota",type:"auto",price:180,vol:0.0015,logo:"https://logo.clearbit.com/toyota.com"},
-    {id:"F",n:"Ford",type:"auto",price:12,vol:0.003,logo:"https://logo.clearbit.com/ford.com"},
-    {id:"BTC",n:"Bitcoin",type:"crypto",price:42000,vol:0.02,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/bitcoin.svg"},
-    {id:"ETH",n:"Ethereum",type:"crypto",price:2300,vol:0.025,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/ethereum.svg"},
-    {id:"SOL",n:"Solana",type:"crypto",price:95,vol:0.04,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/solana.svg"},
-    {id:"XRP",n:"Ripple",type:"crypto",price:0.60,vol:0.03,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/xrp.svg"},
-    {id:"ADBE",n:"Adobe",type:"tech",price:550,vol:0.003,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/adobe.svg"},
-    {id:"INTC",n:"Intel",type:"tech",price:35,vol:0.003,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/intel.svg"},
-    {id:"AMD",n:"AMD",type:"tech",price:105,vol:0.004,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amd.svg"},
-    {id:"CRM",n:"Salesforce",type:"tech",price:210,vol:0.003,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg"},
-    {id:"SBUX",n:"Starbucks",type:"consumer",price:95,vol:0.002,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/starbucks.svg"},
-    {id:"DIS",n:"Disney",type:"consumer",price:85,vol:0.003,logo:"https://logo.clearbit.com/disney.com"},
-    {id:"DOGE",n:"Dogecoin",type:"crypto",price:0.10,vol:0.05,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/dogecoin.svg"},
-    {id:"ADA",n:"Cardano",type:"crypto",price:0.50,vol:0.035,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/cardano.svg"},
-    {id:"DOT",n:"Polkadot",type:"crypto",price:7.00,vol:0.04,logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/polkadot.svg"}
+    { id:"ADLS", n:"Adless Games",  type:"gaming",   price:24,    vol:0.006, logoSvg:true },
+    { id:"AAPL", n:"Apple",         type:"tech",      price:175,   vol:0.002, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/apple.svg" },
+    { id:"MSFT", n:"Microsoft",     type:"tech",      price:330,   vol:0.002, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoft.svg" },
+    { id:"GOOG", n:"Alphabet",      type:"tech",      price:135,   vol:0.002, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/google.svg" },
+    { id:"AMZN", n:"Amazon",        type:"tech",      price:140,   vol:0.003, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazon.svg" },
+    { id:"NVDA", n:"NVIDIA",        type:"tech",      price:460,   vol:0.005, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/nvidia.svg" },
+    { id:"META", n:"Meta",          type:"tech",      price:300,   vol:0.004, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/meta.svg" },
+    { id:"TSLA", n:"Tesla",         type:"auto",      price:240,   vol:0.006, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/tesla.svg" },
+    { id:"NFLX", n:"Netflix",       type:"tech",      price:400,   vol:0.004, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/netflix.svg" },
+    { id:"JPM",  n:"JPMorgan",      type:"finance",   price:150,   vol:0.002, logo:"https://logo.clearbit.com/jpmorganchase.com" },
+    { id:"V",    n:"Visa",          type:"finance",   price:240,   vol:0.001, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/visa.svg" },
+    { id:"MA",   n:"Mastercard",    type:"finance",   price:400,   vol:0.002, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mastercard.svg" },
+    { id:"WMT",  n:"Walmart",       type:"consumer",  price:160,   vol:0.001, logo:"https://logo.clearbit.com/walmart.com" },
+    { id:"KO",   n:"Coca-Cola",     type:"consumer",  price:58,    vol:0.001, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/cocacola.svg" },
+    { id:"PEP",  n:"PepsiCo",       type:"consumer",  price:170,   vol:0.001, logo:"https://logo.clearbit.com/pepsico.com" },
+    { id:"TM",   n:"Toyota",        type:"auto",      price:180,   vol:0.0015,logo:"https://logo.clearbit.com/toyota.com" },
+    { id:"F",    n:"Ford",          type:"auto",      price:12,    vol:0.003, logo:"https://logo.clearbit.com/ford.com" },
+    { id:"BTC",  n:"Bitcoin",       type:"crypto",    price:42000, vol:0.02,  logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/bitcoin.svg" },
+    { id:"ETH",  n:"Ethereum",      type:"crypto",    price:2300,  vol:0.025, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/ethereum.svg" },
+    { id:"SOL",  n:"Solana",        type:"crypto",    price:95,    vol:0.04,  logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/solana.svg" },
+    { id:"XRP",  n:"Ripple",        type:"crypto",    price:0.60,  vol:0.03,  logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/xrp.svg" },
+    { id:"ADBE", n:"Adobe",         type:"tech",      price:550,   vol:0.003, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/adobe.svg" },
+    { id:"INTC", n:"Intel",         type:"tech",      price:35,    vol:0.003, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/intel.svg" },
+    { id:"AMD",  n:"AMD",           type:"tech",      price:105,   vol:0.004, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amd.svg" },
+    { id:"CRM",  n:"Salesforce",    type:"tech",      price:210,   vol:0.003, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/salesforce.svg" },
+    { id:"SBUX", n:"Starbucks",     type:"consumer",  price:95,    vol:0.002, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/starbucks.svg" },
+    { id:"DIS",  n:"Disney",        type:"consumer",  price:85,    vol:0.003, logo:"https://logo.clearbit.com/disney.com" },
+    { id:"DOGE", n:"Dogecoin",      type:"crypto",    price:0.10,  vol:0.05,  logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/dogecoin.svg" },
+    { id:"ADA",  n:"Cardano",       type:"crypto",    price:0.50,  vol:0.035, logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/cardano.svg" },
+    { id:"DOT",  n:"Polkadot",      type:"crypto",    price:7.00,  vol:0.04,  logo:"https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/polkadot.svg" },
 ];
 
 let livePrices = {};
@@ -1159,13 +1076,18 @@ function playClickSound(type) {
     try {
         const ctx = getAudioCtx(), osc = ctx.createOscillator(), gain = ctx.createGain(), filter = ctx.createBiquadFilter();
         osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-        filter.type = 'lowpass'; filter.frequency.setValueAtTime(800, ctx.currentTime); filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.06);
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.06);
         osc.type = 'sine';
         const sf = type === 'BUY' ? 520 : 380, ef = type === 'BUY' ? 260 : 180;
-        osc.frequency.setValueAtTime(sf, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(ef, ctx.currentTime + 0.07);
-        gain.gain.setValueAtTime(0, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.008); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+        osc.frequency.setValueAtTime(sf, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(ef, ctx.currentTime + 0.07);
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
         osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.09);
-    } catch(e) {}
+    } catch (e) {}
 }
 
 // ============================================================
@@ -1182,7 +1104,8 @@ function renderMarket() {
     const search = (document.getElementById('searchInput').value || '').toLowerCase();
     let html = '';
     ASSETS
-        .filter(a => (currentFilter === 'all' || a.type === currentFilter) && (a.n.toLowerCase().includes(search) || a.id.toLowerCase().includes(search)))
+        .filter(a => (currentFilter === 'all' || a.type === currentFilter) &&
+                     (a.n.toLowerCase().includes(search) || a.id.toLowerCase().includes(search)))
         .forEach(a => {
             const p  = livePrices[a.id];
             const bm = { tech:'badge-tech', finance:'badge-fin', consumer:'badge-retail', auto:'badge-auto', crypto:'badge-crypto', gaming:'badge-gaming' };
@@ -1203,7 +1126,7 @@ function renderMarket() {
 
 function renderPortfolio() {
     const portList = document.getElementById('portfolioList');
-    const sab = document.getElementById('sellAllBtn');
+    const sab      = document.getElementById('sellAllBtn');
     const hasHoldings = Object.keys(state.holdings).some(id => state.holdings[id] && state.holdings[id].qty > 0);
     if (!hasHoldings) {
         if (sab) sab.style.display = 'none';
@@ -1215,11 +1138,12 @@ function renderPortfolio() {
     for (let id in state.holdings) {
         const h = state.holdings[id];
         if (!h || !h.qty || h.qty <= 0) continue;
-        const p = livePrices[id] || 0, val = h.qty * p, pl = val - (h.qty * h.avg), plPct = h.avg > 0 ? ((p - h.avg) / h.avg) * 100 : 0;
-        const meta = ASSETS.find(a => a.id === id);
+        const p = livePrices[id] || 0, val = h.qty * p, pl = val - (h.qty * h.avg);
+        const plPct = h.avg > 0 ? ((p - h.avg) / h.avg) * 100 : 0;
+        const meta  = ASSETS.find(a => a.id === id);
         if (!meta) continue;
-        const color = LOGO_COLORS[meta.type] || '#334155';
-        const qd = Number.isInteger(h.qty) ? h.qty : h.qty.toFixed(4);
+        const color    = LOGO_COLORS[meta.type] || '#334155';
+        const qd       = Number.isInteger(h.qty) ? h.qty : h.qty.toFixed(4);
         const logoHTML = meta.logoSvg
             ? adlessLogoSVG()
             : `<img src="${meta.logo}" class="logo-img" alt="${id}" style="${needsFilter(meta.logo) ? 'filter:' + TYPE_FILTERS[meta.type] + ';' : ''}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="logo-fallback" style="display:none;background:${color};font-size:0.6rem;">${id.substring(0,3)}</div>`;
@@ -1248,7 +1172,7 @@ function renderStats() {
     let portVal = 0;
     Object.keys(state.holdings).forEach(id => { portVal += (state.holdings[id].qty || 0) * (livePrices[id] || 0); });
     const nw = state.cash + portVal;
-    document.getElementById('cashDisplay').innerText    = fmt.format(state.cash);
+    document.getElementById('cashDisplay').innerText      = fmt.format(state.cash);
     document.getElementById('portValueDisplay').innerText = fmt.format(portVal);
     document.getElementById('netWorthDisplay').innerText  = fmt.format(nw);
     updateChart(nw);
@@ -1293,7 +1217,7 @@ function processPending() {
     pendingOrders = np;
     const con = document.getElementById('pendingContainer');
     if (html) { con.innerHTML = html; con.style.background = 'transparent'; con.style.fontStyle = 'normal'; }
-    else { con.innerHTML = 'System Idle.'; con.style.background = '#f1f5f9'; con.style.fontStyle = 'italic'; }
+    else       { con.innerHTML = 'System Idle.'; con.style.background = '#f1f5f9'; con.style.fontStyle = 'italic'; }
 }
 
 function executeTrade(o) {
@@ -1301,7 +1225,7 @@ function executeTrade(o) {
     if (o.type === 'BUY') {
         if (state.cash >= cost) {
             state.cash -= cost;
-            const h = state.holdings[o.id] || { qty: 0, avg: 0 };
+            const h      = state.holdings[o.id] || { qty: 0, avg: 0 };
             const newQty = h.qty + o.qty;
             state.holdings[o.id] = { qty: newQty, avg: ((h.qty * h.avg) + cost) / newQty };
             logHistory('BUY', o.id, o.qty, p);
@@ -1345,33 +1269,32 @@ function openModal(type, id) {
     const asset = ASSETS.find(a => a.id === id);
     if (!asset) return;
     document.getElementById('tradeModal').style.display = 'flex';
-    document.getElementById('modalTitle').innerText = `${type} ${asset.n}`;
-    document.getElementById('modalPrice').innerText = `Current: ${fmt.format(livePrices[id])}`;
-    document.getElementById('modalQty').value = 1;
+    document.getElementById('modalTitle').innerText     = `${type} ${asset.n}`;
+    document.getElementById('modalPrice').innerText     = `Current: ${fmt.format(livePrices[id])}`;
+    document.getElementById('modalQty').value           = 1;
     const btn = document.getElementById('confirmTradeBtn');
-    btn.className = `btn ${type === 'BUY' ? 'btn-buy' : 'btn-sell'}`;
+    btn.className   = `btn ${type === 'BUY' ? 'btn-buy' : 'btn-sell'}`;
     btn.style.cssText = 'width:100%;padding:14px;font-size:0.95rem;';
-    btn.innerText = `CONFIRM ${type}`;
+    btn.innerText   = `CONFIRM ${type}`;
     calcModal();
 }
 function closeModal() { document.getElementById('tradeModal').style.display = 'none'; currentTrade = null; }
 
-// Fixed: use addEventListener instead of .oninput assignment so it doesn't get clobbered
 document.getElementById('modalQty').addEventListener('input', calcModal);
 
 function calcModal() {
     if (!currentTrade) return;
     const qty = parseInt(document.getElementById('modalQty').value) || 0;
-    const p = livePrices[currentTrade.id];
+    const p   = livePrices[currentTrade.id];
     document.getElementById('modalTotal').innerText = fmt.format(qty * p);
-    document.getElementById('modalMax').innerText = currentTrade.type === 'BUY'
+    document.getElementById('modalMax').innerText   = currentTrade.type === 'BUY'
         ? Math.floor(state.cash / p)
         : (state.holdings[currentTrade.id]?.qty || 0);
 }
 
 document.getElementById('confirmTradeBtn').addEventListener('click', () => {
     if (!currentTrade) return;
-    const qty = parseInt(document.getElementById('modalQty').value);
+    const qty   = parseInt(document.getElementById('modalQty').value);
     if (!qty || qty < 1) { alert('Please enter a valid quantity.'); return; }
     const price = livePrices[currentTrade.id], cost = qty * price;
     if (currentTrade.type === 'BUY' && cost > state.cash) { alert('Funds Declined: Insufficient Capital'); return; }
@@ -1384,7 +1307,7 @@ document.getElementById('confirmTradeBtn').addEventListener('click', () => {
     closeModal();
 });
 
-document.getElementById('tradeModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.getElementById('tradeModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
 
 // ============================================================
 // NEWS TICKER
@@ -1406,9 +1329,9 @@ function updateNews() {
     newsTimer2++;
     if (newsTimer2 > 300) {
         newsTimer2 = 0;
-        const msg = NEWS_EVENTS[Math.floor(Math.random() * NEWS_EVENTS.length)];
+        const msg    = NEWS_EVENTS[Math.floor(Math.random() * NEWS_EVENTS.length)];
         const ticker = document.getElementById('newsTicker');
-        const item = document.createElement('div');
+        const item   = document.createElement('div');
         item.className = 'ticker-item'; item.innerText = msg;
         ticker.appendChild(item);
     }
@@ -1432,12 +1355,12 @@ function saveBJState() {
 
 let bjDeck = [], bjPlayerHand = [], bjDealerHand = [], bjBet = 0, bjGameActive = false;
 
-const SUITS = ['♠','♥','♦','♣'];
-const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUITS    = ['♠','♥','♦','♣'];
+const RANKS    = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const RED_SUITS = new Set(['♥','♦']);
 
 function buildDeck() { const d = []; for (let s of SUITS) for (let r of RANKS) d.push({ rank: r, suit: s }); return d; }
-function shuffle(d) { for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i+1)); [d[i],d[j]] = [d[j],d[i]]; } return d; }
+function shuffle(d)  { for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i+1)); [d[i],d[j]] = [d[j],d[i]]; } return d; }
 function cardValue(card) { if (['J','Q','K'].includes(card.rank)) return 10; if (card.rank === 'A') return 11; return parseInt(card.rank); }
 function handValue(hand) {
     let val = 0, aces = 0;
@@ -1448,23 +1371,28 @@ function handValue(hand) {
 function cardHTML(card, faceDown = false) {
     if (faceDown) return `<div class="bj-card back"></div>`;
     const isRed = RED_SUITS.has(card.suit);
-    return `<div class="bj-card ${isRed ? 'red' : 'black'}"><span>${card.rank}</span><span class="suit">${card.suit}</span></div>`;
+    return `<div class="bj-card ${isRed ? 'red' : 'black'}"><span>${card.rank}</span><span>${card.suit}</span></div>`;
 }
 function renderBJHands(hideDealer = false) {
     document.getElementById('playerHand').innerHTML = bjPlayerHand.map(c => cardHTML(c)).join('');
     document.getElementById('dealerHand').innerHTML = bjDealerHand.map((c, i) => cardHTML(c, hideDealer && i === 1)).join('');
     const pv = handValue(bjPlayerHand);
-    document.getElementById('playerScore').textContent = (bjGameActive || bjPlayerHand.length > 0) ? `${pv}${pv > 21 ? ' — BUST' : ''}` : '';
+    document.getElementById('playerScore').textContent = (bjGameActive || bjPlayerHand.length > 0)
+        ? `${pv}${pv > 21 ? ' — BUST' : ''}` : '';
     const dv = hideDealer ? cardValue(bjDealerHand[0]) : handValue(bjDealerHand);
-    document.getElementById('dealerScore').textContent = bjDealerHand.length > 0 ? (hideDealer ? `${dv} + ?` : `${dv}${dv > 21 ? ' — BUST' : ''}`) : '';
+    document.getElementById('dealerScore').textContent = bjDealerHand.length > 0
+        ? (hideDealer ? `${dv} + ?` : `${dv}${dv > 21 ? ' — BUST' : ''}`) : '';
 }
 function setBJBtns(game) {
-    document.getElementById('bjDealBtn').disabled = game;
-    document.getElementById('bjHitBtn').disabled  = !game;
+    document.getElementById('bjDealBtn').disabled  = game;
+    document.getElementById('bjHitBtn').disabled   = !game;
     document.getElementById('bjStandBtn').disabled = !game;
     const canDouble = game && bjPlayerHand.length === 2 && bjBet * 2 <= bjState.bankroll;
     document.getElementById('bjDoubleBtn').disabled = !canDouble;
-    document.querySelectorAll('.bj-chip').forEach(c => { c.style.opacity = game ? '0.4' : '1'; c.style.pointerEvents = game ? 'none' : 'auto'; });
+    document.querySelectorAll('.bj-chip').forEach(c => {
+        c.style.opacity      = game ? '0.4' : '1';
+        c.style.pointerEvents = game ? 'none' : 'auto';
+    });
 }
 function addBet(amt) {
     if (bjGameActive) return;
@@ -1490,8 +1418,8 @@ function bjHit() {
     if (!bjGameActive) return;
     bjPlayerHand.push(bjDeck.pop());
     renderBJHands(true);
-    if (handValue(bjPlayerHand) > 21) { bjStand(); }
-    else { setBJBtns(true); }
+    if (handValue(bjPlayerHand) > 21) bjStand();
+    else setBJBtns(true);
 }
 function bjDouble() {
     if (!bjGameActive || bjPlayerHand.length !== 2) return;
@@ -1504,7 +1432,7 @@ function bjDouble() {
 }
 async function bjStand() {
     if (!bjGameActive) return;
-    bjGameActive = false;  // prevent double-call
+    bjGameActive = false;
     setBJBtns(false);
     renderBJHands(false);
     await sleep(500);
@@ -1522,33 +1450,34 @@ function bjResolve() {
     const playerBJ = bjPlayerHand.length === 2 && pv === 21;
     const dealerBJ = bjDealerHand.length === 2 && dv === 21;
     let result, delta = 0;
-    if (playerBJ && dealerBJ)   { result = 'push'; }
-    else if (playerBJ)          { result = 'blackjack'; delta = Math.floor(bjBet * 1.5); }
-    else if (pv > 21)           { result = 'bust'; delta = -bjBet; }
-    else if (dv > 21)           { result = 'dealer_bust'; delta = bjBet; }
-    else if (pv > dv)           { result = 'win'; delta = bjBet; }
-    else if (pv < dv)           { result = 'lose'; delta = -bjBet; }
-    else                        { result = 'push'; }
+    if      (playerBJ && dealerBJ) { result = 'push'; }
+    else if (playerBJ)             { result = 'blackjack'; delta = Math.floor(bjBet * 1.5); }
+    else if (pv > 21)              { result = 'bust';       delta = -bjBet; }
+    else if (dv > 21)              { result = 'dealer_bust';delta = bjBet; }
+    else if (pv > dv)              { result = 'win';        delta = bjBet; }
+    else if (pv < dv)              { result = 'lose';       delta = -bjBet; }
+    else                           { result = 'push'; }
 
     bjState.bankroll += delta;
     if (bjState.bankroll < 0) bjState.bankroll = 0;
 
     const isWin = delta > 0, isPush = delta === 0;
-    if (isPush) { bjState.pushes++; bjState.streak = 0; bjState.streakType = null; }
-    else if (isWin) { bjState.wins++; bjState.streakType === 'W' ? bjState.streak++ : (bjState.streak = 1); bjState.streakType = 'W'; }
-    else { bjState.losses++; bjState.streakType === 'L' ? bjState.streak++ : (bjState.streak = 1); bjState.streakType = 'L'; }
+    if      (isPush)  { bjState.pushes++; bjState.streak = 0; bjState.streakType = null; }
+    else if (isWin)   { bjState.wins++;   bjState.streakType === 'W' ? bjState.streak++ : (bjState.streak = 1); bjState.streakType = 'W'; }
+    else              { bjState.losses++; bjState.streakType === 'L' ? bjState.streak++ : (bjState.streak = 1); bjState.streakType = 'L'; }
 
     if (bjState.bankroll < 10) {
         bjState.bankroll = 1000;
         showBJResult('Reloaded! New bankroll: $1,000', 'push');
     } else {
-        const msgs = { blackjack:'BLACKJACK! 🃏', bust:'BUST 💥', dealer_bust:'Dealer Bust! 🎉', win:'WIN! 🎯', lose:'LOSE 😤', push:'PUSH 🤝' };
-        const cls = isWin ? 'win' : isPush ? 'push' : 'lose';
+        const msgs   = { blackjack:'BLACKJACK! 🃏', bust:'BUST 💥', dealer_bust:'Dealer Bust! 🎉', win:'WIN! 🎯', lose:'LOSE 😤', push:'PUSH 🤝' };
+        const cls    = isWin ? 'win' : isPush ? 'push' : 'lose';
         const amtStr = delta > 0 ? `+${fmt.format(delta)}` : delta < 0 ? fmt.format(delta) : 'No change';
         showBJResult(msgs[result], cls, amtStr);
     }
 
-    bjBet = 0; document.getElementById('bjBetDisplay').textContent = '$0';
+    bjBet = 0;
+    document.getElementById('bjBetDisplay').textContent = '$0';
     saveBJState(); updateBJStats(); setBJBtns(false);
 }
 
