@@ -540,7 +540,12 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
                 <div>
-                    <h3 style="margin:0;"><i class="fas fa-trophy" style="color:var(--gold);margin-right:8px;"></i>Global Leaderboard</h3>
+                    <h3 style="margin:0;">
+                        <i class="fas fa-trophy" style="color:var(--gold);margin-right:8px;"></i>Global Leaderboard
+                        <a href="https://nixenstocksim.pages.dev/" target="_blank"
+                           style="font-size:0.55rem;font-weight:600;color:#cbd5e1;text-decoration:none;letter-spacing:0.5px;opacity:0.6;margin-left:8px;"
+                           title="NixenStock Official">nixenstocksim.pages.dev</a>
+                    </h3>
                     <div class="lb-status" id="lbStatus">Connecting...</div>
                 </div>
             </div>
@@ -662,6 +667,24 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 
 <script>
 // ============================================================
+// DOMAIN LOCK
+// ============================================================
+(function() {
+    const allowed = ['nixenstocksim.pages.dev', 'localhost', '127.0.0.1'];
+    const host = window.location.hostname;
+    if (!allowed.includes(host)) {
+        document.body.innerHTML = '';
+        document.title = '';
+        window.location.replace('https://nixenstocksim.pages.dev/');
+    }
+})();
+
+// ============================================================
+// CONSOLE FINGERPRINT
+// ============================================================
+console.log('%c NixenStock © 2026 — nixenstocksim.pages.dev ', 'background:#0f172a;color:#2563eb;font-weight:900;padding:6px 12px;border-radius:4px;font-size:13px;');
+
+// ============================================================
 // SUPABASE SETUP
 // ============================================================
 const SUPA_URL = 'https://cjbxzznigvrpqlgshvei.supabase.co';
@@ -726,7 +749,6 @@ async function doSignup() {
 
     const pwHash = btoa(p);
 
-    // Try Supabase
     if (sb) {
         try {
             const { data: existing, error: selErr } = await sb
@@ -751,12 +773,10 @@ async function doSignup() {
             if (insErr) throw insErr;
 
         } catch (e) {
-            // Supabase unavailable / RLS not set — localStorage-only fallback
             console.warn('Supabase signup failed, localStorage only:', e.message);
         }
     }
 
-    // Always persist locally so the same device works offline
     localUsers[nameLower] = { displayName: rawName, pw: pwHash, created: Date.now() };
     saveLocalUsers(localUsers);
 
@@ -778,7 +798,6 @@ async function doLogin() {
     let displayName   = rawInput;
     let authenticated = false;
 
-    // ── 1. Try Supabase ──────────────────────────────────────
     if (sb) {
         try {
             const { data, error } = await sb
@@ -790,11 +809,9 @@ async function doLogin() {
             if (error) throw error;
 
             if (data && data.length > 0) {
-                // Row found in Supabase — only trust Supabase result, no further fallback
                 if (data[0].pw_hash === pwHash) {
                     displayName   = data[0].username_display;
                     authenticated = true;
-                    // Sync to localStorage so offline sessions work
                     const lu = getLocalUsers();
                     lu[nameLower] = { displayName: data[0].username_display, pw: pwHash, created: Date.now() };
                     saveLocalUsers(lu);
@@ -803,13 +820,11 @@ async function doLogin() {
                     setAuthLoading(false); return;
                 }
             }
-            // data.length === 0 → user not in Supabase yet, fall through to localStorage
         } catch (e) {
             console.warn('Supabase login error, falling back to localStorage:', e.message);
         }
     }
 
-    // ── 2. localStorage fallback (offline / Supabase row not found) ──
     if (!authenticated) {
         const localUsers = getLocalUsers();
         if (!localUsers[nameLower] || localUsers[nameLower].pw !== pwHash) {
@@ -845,7 +860,7 @@ function loginUser(usernameLower, displayName) {
         renderHistory();
         updateBJStats();
         renderLeaderboard();
-        setAuthLoading(false); // FIX: was missing, left button disabled forever
+        setAuthLoading(false);
     }, 300);
 }
 
@@ -855,7 +870,6 @@ function doLogout() {
     location.reload();
 }
 
-// Auto-login from stored session
 (function () {
     const s = getSession();
     if (!s || !s.username) return;
@@ -863,7 +877,6 @@ function doLogout() {
     const displayName = s.displayName
         || (localUsers[s.username] && localUsers[s.username].displayName)
         || s.username;
-    // Trust session if Supabase is configured (cross-device) or user exists locally
     if (SUPA_URL !== 'https://YOUR_PROJECT.supabase.co' || localUsers[s.username]) {
         loginUser(s.username, displayName);
     }
