@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nixen Global Sim v12 | Lowen LLC</title>
+<title>Nixen Global Sim v12 | NixenStock</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -286,105 +286,257 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 .legal-footer strong { color: var(--primary); }
 
 /* BLACKJACK */
+#page-blackjack {
+    max-width: 780px;
+    margin: 0 auto;
+}
+.bj-outer {
+    background: radial-gradient(ellipse at 50% 0%, #1a3a1a 0%, #0d1f0d 100%);
+    border-radius: 24px;
+    padding: 6px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.3);
+}
 .bj-table {
-    background: linear-gradient(160deg, #14532d 0%, #166534 40%, #15803d 100%);
-    border-radius: 16px; padding: 24px;
-    border: 3px solid #14532d;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2);
-    position: relative;
+    background: radial-gradient(ellipse at 50% 30%, #1e6b3a 0%, #145228 50%, #0d3d1e 100%);
+    border-radius: 20px; padding: 28px;
+    border: 2px solid rgba(212,175,55,0.25);
+    position: relative; overflow: hidden;
 }
 .bj-table::before {
     content: '';
-    position: absolute; inset: 8px;
-    border-radius: 10px;
+    position: absolute; inset: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(212,175,55,0.15);
+    pointer-events: none; z-index: 0;
+}
+.bj-table::after {
+    content: '♠ NixenStock Casino ♠';
+    position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    color: rgba(212,175,55,0.2); font-size: 0.65rem; font-weight: 800;
+    letter-spacing: 3px; text-transform: uppercase; pointer-events: none;
+    white-space: nowrap;
+}
+.bj-table > * { position: relative; z-index: 1; }
+
+/* felt texture overlay */
+.bj-felt-overlay {
+    position: absolute; inset: 0; border-radius: 20px;
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px,
+        transparent 1px, transparent 6px
+    );
+    pointer-events: none; z-index: 0;
+}
+
+.bj-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+}
+.bj-title {
+    color: rgba(212,175,55,0.9); font-size: 1rem; font-weight: 900;
+    letter-spacing: 3px; text-transform: uppercase;
+}
+.bj-shoe-indicator {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,0.3); border-radius: 20px; padding: 4px 12px;
     border: 1px solid rgba(255,255,255,0.08);
-    pointer-events: none;
 }
+.bj-shoe-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.bj-shoe-text { color: rgba(255,255,255,0.5); font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; }
+
+.bj-stats-row {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 22px;
+}
+.bj-stat {
+    background: rgba(0,0,0,0.35); border-radius: 10px; padding: 10px 8px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(4px);
+}
+.bj-stat .val { color: white; font-weight: 800; font-size: 0.9rem; }
+.bj-stat .val.gold { color: #fbbf24; }
+.bj-stat .lbl { color: rgba(255,255,255,0.4); font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
+
+/* divider */
+.bj-divider {
+    height: 1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+    margin: 16px 0;
+}
+
+.bj-zone { margin-bottom: 18px; }
 .bj-section-label {
-    color: rgba(255,255,255,0.55); font-size: 0.65rem;
-    font-weight: 800; text-transform: uppercase;
-    letter-spacing: 2px; margin-bottom: 8px;
+    color: rgba(212,175,55,0.6); font-size: 0.6rem;
+    font-weight: 900; text-transform: uppercase;
+    letter-spacing: 3px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
 }
-.bj-hand { display: flex; gap: 7px; flex-wrap: wrap; min-height: 88px; align-items: flex-end; margin-bottom: 6px; }
+.bj-section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
+}
+
+.bj-hand {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    min-height: 100px; align-items: flex-end; margin-bottom: 8px;
+}
 .bj-card {
-    width: 58px; height: 82px;
-    background: white; border-radius: 7px;
+    width: 64px; height: 92px;
+    background: white; border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem; font-weight: 800;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    animation: cardDeal 0.22s cubic-bezier(0.16,1,0.3,1);
-    flex-direction: column; gap: 2px;
+    font-size: 1.25rem; font-weight: 900;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.8) inset;
+    animation: cardDeal 0.28s cubic-bezier(0.16,1,0.3,1);
+    flex-direction: column; gap: 1px;
     border: 1px solid #e2e8f0;
+    position: relative;
 }
-.bj-card .suit { font-size: 0.9rem; }
-@keyframes cardDeal { from{transform:translateY(-18px) scale(0.88);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
+.bj-card .rank-tl {
+    position: absolute; top: 5px; left: 7px;
+    font-size: 0.75rem; font-weight: 900; line-height: 1;
+}
+.bj-card .rank-br {
+    position: absolute; bottom: 5px; right: 7px;
+    font-size: 0.75rem; font-weight: 900; line-height: 1;
+    transform: rotate(180deg);
+}
+.bj-card .suit-center { font-size: 1.6rem; line-height: 1; }
+@keyframes cardDeal {
+    from { transform: translateY(-30px) rotate(-8deg) scale(0.85); opacity: 0; }
+    to   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+}
 .bj-card.red { color: #dc2626; }
 .bj-card.black { color: #1e293b; }
 .bj-card.back {
-    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #1e3a8a 100%);
-    border-color: #1e3a8a;
+    background: linear-gradient(135deg, #1a237e 0%, #283593 40%, #1a237e 100%);
+    border-color: #1a237e;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
 }
-.bj-card.back::after { content: '◆'; font-size: 1.8rem; color: rgba(255,255,255,0.3); }
-.bj-score { color: rgba(255,255,255,0.9); font-weight: 800; font-size: 0.95rem; margin-bottom: 16px; }
-.bj-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
-.bj-btn {
-    padding: 10px 20px; border: none; border-radius: 8px;
-    cursor: pointer; font-weight: 800; font-size: 0.9rem;
-    transition: 0.15s;
+.bj-card.back::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border-radius: 5px;
+    background: repeating-linear-gradient(
+        45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+        transparent 1px, transparent 6px
+    );
+    border: 1px solid rgba(255,255,255,0.1);
 }
-.bj-btn:active { transform: scale(0.96); }
-.bj-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-.bj-btn-hit { background: #22c55e; color: white; }
-.bj-btn-stand { background: #f59e0b; color: white; }
-.bj-btn-deal { background: white; color: var(--primary); }
-.bj-btn-double { background: #8b5cf6; color: white; }
-.bj-bet-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.bj-card.back::after { content: '🂠'; font-size: 2.2rem; color: rgba(255,255,255,0.15); }
+
+.bj-score-row { display: flex; align-items: center; gap: 10px; }
+.bj-score {
+    color: rgba(255,255,255,0.95); font-weight: 800; font-size: 1rem;
+    background: rgba(0,0,0,0.3); border-radius: 6px;
+    padding: 3px 10px; display: inline-block;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.bj-score.bust { color: #ef4444; border-color: rgba(239,68,68,0.3); }
+.bj-score.bj { color: #fbbf24; border-color: rgba(251,191,36,0.4); }
+.bj-score-tag {
+    font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+    padding: 2px 7px; border-radius: 4px; text-transform: uppercase;
+}
+.bj-score-tag.bust { background: rgba(239,68,68,0.2); color: #ef4444; }
+.bj-score-tag.bj   { background: rgba(251,191,36,0.2); color: #fbbf24; }
+
+/* BET AREA */
+.bj-bet-area {
+    background: rgba(0,0,0,0.25); border-radius: 14px; padding: 16px;
+    border: 1px solid rgba(255,255,255,0.07); margin-bottom: 16px;
+}
+.bj-bet-label {
+    color: rgba(212,175,55,0.6); font-size: 0.58rem; font-weight: 900;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px;
+}
+.bj-chips-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 .bj-chip {
-    width: 46px; height: 46px; border-radius: 50%;
+    width: 52px; height: 52px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 0.75rem; color: white;
+    font-weight: 900; font-size: 0.7rem; color: white;
+    cursor: pointer; transition: all 0.15s;
+    position: relative;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.4), 0 0 0 3px rgba(255,255,255,0.15), 0 0 0 6px rgba(0,0,0,0.2);
+}
+.bj-chip::before {
+    content: '';
+    position: absolute; inset: 4px; border-radius: 50%;
+    border: 2px dashed rgba(255,255,255,0.35);
+}
+.bj-chip:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 8px 0 rgba(0,0,0,0.4), 0 0 0 3px rgba(255,255,255,0.2), 0 0 0 6px rgba(0,0,0,0.2); }
+.bj-chip:active { transform: translateY(-1px) scale(0.97); }
+.bj-chip.disabled { opacity: 0.3; pointer-events: none; }
+.bj-chip.c10  { background: radial-gradient(circle at 35% 35%, #3b82f6, #1d4ed8); }
+.bj-chip.c25  { background: radial-gradient(circle at 35% 35%, #22c55e, #15803d); }
+.bj-chip.c50  { background: radial-gradient(circle at 35% 35%, #f87171, #b91c1c); }
+.bj-chip.c100 { background: radial-gradient(circle at 35% 35%, #d97706, #92400e); }
+.bj-chip.c500 { background: radial-gradient(circle at 35% 35%, #a78bfa, #4c1d95); }
+
+.bj-bet-info {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.bj-bet-display {
+    color: white; font-size: 1.3rem; font-weight: 900;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.bj-bet-display span { color: #fbbf24; }
+.bj-bet-actions { display: flex; gap: 7px; }
+.bj-ghost-btn {
+    background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 7px;
+    padding: 6px 12px; font-size: 0.72rem; font-weight: 700;
     cursor: pointer; transition: 0.15s;
-    border: 3px dashed rgba(255,255,255,0.4);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
 }
-.bj-chip:hover { transform: scale(1.12) translateY(-2px); }
-.bj-chip:active { transform: scale(0.95); }
-.bj-chip.c10 { background: #1d4ed8; }
-.bj-chip.c25 { background: #15803d; }
-.bj-chip.c50 { background: #b91c1c; }
-.bj-chip.c100 { background: #92400e; }
-.bj-chip.c500 { background: #4c1d95; }
-.bj-bet-display { color: white; font-size: 1.05rem; font-weight: 800; }
-.bj-clear-btn {
-    background: rgba(255,255,255,0.15); color: white;
-    border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
-    padding: 5px 11px; font-size: 0.72rem; font-weight: 700;
-    cursor: pointer;
+.bj-ghost-btn:hover { background: rgba(255,255,255,0.15); }
+.bj-ghost-btn.repeat { color: #fbbf24; border-color: rgba(251,191,36,0.3); }
+
+/* ACTION BUTTONS */
+.bj-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+.bj-btn {
+    padding: 12px 22px; border: none; border-radius: 10px;
+    cursor: pointer; font-weight: 900; font-size: 0.9rem;
+    transition: all 0.15s; position: relative; overflow: hidden;
+    letter-spacing: 0.5px;
 }
+.bj-btn::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+    pointer-events: none;
+}
+.bj-btn:active { transform: translateY(2px) scale(0.97); }
+.bj-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+.bj-btn-deal  { background: linear-gradient(135deg, #f8fafc, #e2e8f0); color: #0f172a; box-shadow: 0 4px 0 #94a3b8; }
+.bj-btn-hit   { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; box-shadow: 0 4px 0 #166534; }
+.bj-btn-stand { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 0 #92400e; }
+.bj-btn-double{ background: linear-gradient(135deg, #a78bfa, #7c3aed); color: white; box-shadow: 0 4px 0 #4c1d95; }
+.bj-btn-deal:active  { box-shadow: 0 1px 0 #94a3b8; }
+.bj-btn-hit:active   { box-shadow: 0 1px 0 #166534; }
+.bj-btn-stand:active { box-shadow: 0 1px 0 #92400e; }
+.bj-btn-double:active{ box-shadow: 0 1px 0 #4c1d95; }
+
+/* RESULT OVERLAY */
 .bj-result {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%,-50%) scale(0);
-    background: rgba(15,23,42,0.92); color: white;
-    border-radius: 14px; padding: 18px 30px;
-    text-align: center; font-weight: 800;
-    font-size: 1.4rem; z-index: 10;
-    backdrop-filter: blur(8px);
-    transition: transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
-    white-space: nowrap;
+    background: rgba(10,15,25,0.95); color: white;
+    border-radius: 18px; padding: 22px 40px;
+    text-align: center; font-weight: 900;
+    font-size: 1.6rem; z-index: 20;
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    white-space: nowrap; min-width: 200px;
 }
 .bj-result.show { transform: translate(-50%,-50%) scale(1); }
-.bj-result.win { border: 2px solid #22c55e; }
-.bj-result.lose { border: 2px solid #ef4444; }
-.bj-result.push { border: 2px solid #f59e0b; }
-.bj-result .res-amount { font-size: 0.9rem; margin-top: 4px; opacity: 0.8; }
-.bj-stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 18px; }
-.bj-stat { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 10px 12px; text-align: center; }
-.bj-stat .val { color: white; font-weight: 800; font-size: 0.95rem; }
-.bj-stat .lbl { color: rgba(255,255,255,0.5); font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.bj-result.win  { border: 2px solid #22c55e; box-shadow: 0 0 30px rgba(34,197,94,0.3); }
+.bj-result.lose { border: 2px solid #ef4444; box-shadow: 0 0 30px rgba(239,68,68,0.3); }
+.bj-result.push { border: 2px solid #f59e0b; box-shadow: 0 0 30px rgba(245,158,11,0.3); }
+.bj-result .res-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; opacity: 0.5; text-transform: uppercase; margin-bottom: 4px; }
+.bj-result .res-amount { font-size: 1rem; margin-top: 6px; font-weight: 800; opacity: 0.85; }
+
 .bj-note {
-    color: rgba(255,255,255,0.5); font-size: 0.68rem;
-    font-weight: 600; margin-top: 12px; text-align: center;
-    letter-spacing: 0.5px;
+    color: rgba(212,175,55,0.35); font-size: 0.62rem;
+    font-weight: 700; margin-top: 18px; text-align: center;
+    letter-spacing: 2px; text-transform: uppercase;
 }
 #pendingContainer { color: #94a3b8; font-style: italic; padding: 10px; background: #f1f5f9; border-radius: 8px; font-size: 0.82rem; }
 #saveInd { font-size: 0.72rem; color: #10b981; font-weight: 700; opacity: 0; transition: opacity 0.4s; }
@@ -392,7 +544,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 </head>
 <body>
 
-<div class="watermark-bg">LOWEN LLC</div>
+<div class="watermark-bg">NIXENSTOCK</div>
 
 <!-- AUTH SCREEN -->
 <div id="authScreen">
@@ -400,7 +552,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
         <div class="auth-logo">
             <div class="logo-icon" style="color:white;">📈</div>
             <h2>Nixen Global Sim</h2>
-            <p>Powered by Lowen LLC · 2026 Edition</p>
+            <p>Powered by NixenStock · 2026 Edition</p>
         </div>
         <div class="auth-tabs">
             <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
@@ -420,7 +572,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
             <div class="auth-msg error" id="signupError"></div>
             <div class="auth-msg success" id="signupSuccess"></div>
         </div>
-        <div class="auth-footer">© 2026 Lowen LLC · Nixen Global Sim v12</div>
+        <div class="auth-footer">© 2026 NixenStock · Nixen Global Sim v12</div>
     </div>
 </div>
 
@@ -431,7 +583,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
             <div class="user-avatar"><i class="fas fa-building"></i></div>
             <div style="display:flex;flex-direction:column;line-height:1.1;">
                 <span style="font-size:1rem;" id="userDisplayName">Trader</span>
-                <small style="font-size:0.65rem;color:#64748b;font-weight:600;">POWERED BY LOWEN LLC</small>
+                <small style="font-size:0.65rem;color:#64748b;font-weight:600;">POWERED BY NIXENSTOCK</small>
             </div>
             <span class="brand-badge">2026 Edition</span>
         </div>
@@ -455,11 +607,11 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
     <div id="page-market" class="app-container" style="display:none;">
         <div class="ticker-wrap full-width">
             <div class="ticker-move" id="newsTicker">
-                <div class="ticker-item">Lowen LLC Market System Active</div>
+                <div class="ticker-item">NixenStock Market System Active</div>
                 <div class="ticker-item">ADLESS — Ad-Free Gaming Platform Goes Public</div>
                 <div class="ticker-item">Global Markets Open</div>
                 <div class="ticker-item">Blackjack Winnings Count Toward Leaderboard</div>
-                <div class="ticker-item">© 2026 Lowen LLC All Rights Reserved</div>
+                <div class="ticker-item">© 2026 NixenStock All Rights Reserved</div>
             </div>
         </div>
         <div class="card full-width">
@@ -472,7 +624,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
         <div class="card full-width">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <h3 style="margin:0;">Equity Curve</h3>
-                <span style="font-size:0.65rem;font-weight:700;color:#cbd5e1;">LOWEN ANALYTICS</span>
+                <span style="font-size:0.65rem;font-weight:700;color:#cbd5e1;">NIXENSTOCK ANALYTICS</span>
             </div>
             <div class="chart-container"><canvas id="mainChart"></canvas></div>
         </div>
@@ -570,7 +722,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
 
 <div class="legal-footer" id="appFooter" style="display:none;">
     <span>Nixen Global Sim™</span><span>•</span>
-    <span>© 2026 <strong>Lowen LLC</strong>. All Rights Reserved.</span>
+    <span>© 2026 <strong>NixenStock</strong>. All Rights Reserved.</span>
     <span>•</span><span>Enterprise Edition v12.0</span>
 </div>
 
@@ -595,7 +747,7 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
         </div>
         <button type="button" id="confirmTradeBtn" class="btn" style="width:100%;padding:14px;font-size:0.95rem;">Confirm</button>
         <button type="button" onclick="closeModal()" class="btn btn-neutral" style="width:100%;margin-top:9px;padding:11px;">Cancel</button>
-        <div style="text-align:center;margin-top:16px;opacity:0.25;font-size:0.58rem;font-weight:700;letter-spacing:1px;">PROCESSED BY LOWEN LLC</div>
+        <div style="text-align:center;margin-top:16px;opacity:0.25;font-size:0.58rem;font-weight:700;letter-spacing:1px;">PROCESSED BY NIXENSTOCK</div>
     </div>
 </div>
 
@@ -614,8 +766,8 @@ try { sb = supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e) { console.warn(
 // Accounts persisted to Supabase `users` table if connected,
 // otherwise falls back to localStorage only.
 // ============================================================
-const AUTH_KEY   = 'lowen_users_v1';
-const SESSION_KEY = 'lowen_session_v1';
+const AUTH_KEY   = 'nixen_users_v1';
+const SESSION_KEY = 'nixen_session_v1';
 
 function getLocalUsers() { return JSON.parse(localStorage.getItem(AUTH_KEY) || '{}'); }
 function saveLocalUsers(u) { localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
@@ -817,7 +969,7 @@ function switchPage(name, btn) {
 // ============================================================
 let currentUser = null;
 let currentDisplayName = null;
-const SAVE_PREFIX = 'nixen_lowen_v12_';
+const SAVE_PREFIX = 'nixenstock_v12_';
 function stateKey() { return SAVE_PREFIX + (currentUser || 'guest'); }
 const DEFAULT_STATE = { cash: 50000, holdings: {}, history: [] };
 let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -880,7 +1032,7 @@ async function updateLeaderboard() {
         const cols = await probeLBSchema();
         if (!cols) return;
         const row = {};
-        row[cols.user_id]   = 'lowen_' + currentUser;
+        row[cols.user_id]   = 'nixen_' + currentUser;
         // Display original casing on leaderboard
         row[cols.name]      = currentDisplayName || currentUser;
         row[cols.net_worth] = Math.round(netWorth * 100) / 100;
@@ -915,7 +1067,7 @@ async function renderLeaderboard() {
         let html = '';
         data.forEach((entry, i) => {
             const rank = i + 1;
-            const isMe = entry[cols.user_id] === 'lowen_' + currentUser;
+            const isMe = entry[cols.user_id] === 'nixen_' + currentUser;
             const nw = entry[cols.net_worth] || 51000;
             const g  = entry[cols.gain] || 0;
             const nm = entry[cols.name] || 'Unknown';
@@ -1239,7 +1391,7 @@ document.getElementById('tradeModal').addEventListener('click', function(e) { if
 // ============================================================
 const NEWS_EVENTS = [
     "Adless Games Q1 revenue up 34% — zero-ad model gaining traction",
-    "Lowen LLC reports strong sector growth",
+    "NixenStock reports strong sector growth",
     "Market volatility normalizes",
     "Fed announces rate decision",
     "Crypto markets showing resilience",
