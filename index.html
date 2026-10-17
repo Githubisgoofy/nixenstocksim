@@ -578,6 +578,8 @@ td { padding: 11px 12px; background: #fff; border-bottom: 1px solid #f8fafc; ver
                 <h3 style="margin:0;">Market Exchange</h3>
                 <input id="searchInput" placeholder="Search Assets..." onkeyup="renderMarket()" style="padding:9px 14px;border-radius:8px;border:1px solid #ccc;width:200px;font-size:0.85rem;">
             </div>
+            <p id="cryptoStatus" role="status" style="font-size:0.8rem;color:#64748b;">Crypto: connecting to CoinGecko… Stocks use simulated prices.</p>
+            <p style="font-size:0.75rem;"><a href="https://www.coingecko.com/en/api" target="_blank" rel="noopener noreferrer">Crypto data provided by CoinGecko</a></p>
             <div class="tabs">
                 <button type="button" class="tab-btn active" onclick="setTab('all',event)">All</button>
                 <button type="button" class="tab-btn" onclick="setTab('tech',event)">Tech</button>
@@ -1090,9 +1092,32 @@ const ASSETS = [
 let livePrices = {};
 ASSETS.forEach(a => livePrices[a.id] = a.price);
 let pendingOrders = [], currentFilter = 'all', currentTrade = null;
+const CRYPTO_IDS = { BTC: 'bitcoin', ETH: 'ethereum', SOL: 'solana', XRP: 'ripple', DOGE: 'dogecoin', ADA: 'cardano', DOT: 'polkadot' };
+let cryptoUpdatedAt = 0;
+function cryptoReady(id) {
+    return !CRYPTO_IDS[id] || Date.now() - cryptoUpdatedAt < 10 * 60 * 1000;
+}
+async function refreshCrypto() {
+    const status = document.getElementById('cryptoStatus');
+    try {
+        const response = await fetch('/api/crypto', { signal: AbortSignal.timeout(12000) });
+        if (!response.ok) throw new Error('Feed unavailable');
+        const data = await response.json();
+        const quotes = Object.entries(CRYPTO_IDS).map(([id, coin]) => [id, data[coin]]);
+        if (quotes.some(([, q]) => !q || !Number.isFinite(q.usd) || q.usd <= 0 || !Number.isFinite(q.last_updated_at) || Date.now() - q.last_updated_at * 1000 > 600000 || q.last_updated_at * 1000 > Date.now() + 60000)) throw new Error('Invalid or stale quotes');
+        quotes.forEach(([id, q]) => { livePrices[id] = q.usd; });
+        cryptoUpdatedAt = Math.min(...quotes.map(([, q]) => q.last_updated_at * 1000));
+        status.textContent = `Crypto: CoinGecko quotes updated ${new Date(cryptoUpdatedAt).toLocaleTimeString()}. Stocks use simulated prices.`;
+        if (currentTrade) calcModal();
+    } catch (error) {
+        status.textContent = cryptoUpdatedAt
+            ? 'Crypto: refresh unavailable; showing last quotes. Trading pauses when quotes are over 10 minutes old.'
+            : 'Crypto: feed unavailable; seed prices shown, crypto trading paused. Stocks use simulated prices.';
+    }
+}
 
 function updateMarket() {
-    ASSETS.forEach(a => { livePrices[a.id] = Math.max(0.01, livePrices[a.id] * (1 + (Math.random() - 0.5) * 2 * a.vol)); });
+    ASSETS.filter(a => a.type !== 'crypto').forEach(a => { livePrices[a.id] = Math.max(0.01, livePrices[a.id] * (1 + (Math.random() - 0.5) * 2 * a.vol)); });
 }
 
 // ============================================================
@@ -1249,6 +1274,7 @@ function processPending() {
 }
 
 function executeTrade(o) {
+    if (!cryptoReady(o.id)) return;
     const p = livePrices[o.id], cost = p * o.qty;
     if (o.type === 'BUY') {
         if (state.cash >= cost) {
@@ -1276,6 +1302,7 @@ function logHistory(type, id, qty, price) {
 }
 
 function sellAll() {
+    if (Object.keys(state.holdings).some(id => !cryptoReady(id))) { alert('Fresh crypto quotes are required to liquidate all positions.'); return; }
     if (!confirm('Liquidate all positions at market price?')) return;
     Object.keys(state.holdings).forEach(id => {
         const h = state.holdings[id], p = livePrices[id];
@@ -1293,6 +1320,7 @@ function setTab(t, e) {
 }
 
 function openModal(type, id) {
+    if (!cryptoReady(id)) { alert('Crypto trading is paused until fresh CoinGecko quotes are available.'); return; }
     currentTrade = { type, id };
     const asset = ASSETS.find(a => a.id === id);
     if (!asset) return;
@@ -1322,6 +1350,7 @@ function calcModal() {
 
 document.getElementById('confirmTradeBtn').addEventListener('click', () => {
     if (!currentTrade) return;
+    if (!cryptoReady(currentTrade.id)) { alert('Crypto quote expired. Please wait for the feed to refresh.'); return; }
     const qty   = parseInt(document.getElementById('modalQty').value);
     if (!qty || qty < 1) { alert('Please enter a valid quantity.'); return; }
     const price = livePrices[currentTrade.id], cost = qty * price;
@@ -1538,6 +1567,8 @@ setInterval(() => { updateMarket(); processPending(); updateNews(); }, 100);
 setInterval(() => { renderStats(); renderMarket(); renderPortfolio(); }, 1000);
 setInterval(saveGame, 4000);
 setInterval(renderLeaderboard, 8000);
+refreshCrypto();
+setInterval(refreshCrypto, 5 * 60 * 1000);
 </script>
 </body>
 </html>

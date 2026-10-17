@@ -1,0 +1,45 @@
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+
+const source = readFileSync(new URL('../functions/api/crypto.js', import.meta.url), 'utf8');
+const { onRequestGet } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const coins = ['bitcoin', 'ethereum', 'solana', 'ripple', 'dogecoin', 'cardano', 'polkadot'];
+const quotes = Object.fromEntries(coins.map(c => [c, { usd: 42, last_updated_at: Math.floor(Date.now() / 1000) }]));
+let stored, calls = 0;
+globalThis.caches = { default: { match: async () => stored?.clone(), put: async (_, value) => { stored = value; } } };
+const context = { request: new Request('https://example.com/api/crypto?ignored=1'), env: { COINGECKO_API_KEY: 'test-only' } };
+globalThis.fetch = async (url, options) => {
+    calls++;
+    assert.equal(url.hostname, 'api.coingecko.com');
+    assert.equal(options.headers['x-cg-demo-api-key'], 'test-only');
+    assert.equal(url.searchParams.get('ids'), coins.join(','));
+    assert.ok(!url.toString().includes('test-only'));
+    return Response.json(quotes);
+};
+assert.equal((await onRequestGet({ ...context, env: {} })).status, 503);
+assert.deepEqual(await (await onRequestGet(context)).json(), quotes);
+await onRequestGet(context);
+assert.equal(calls, 1, 'second request uses cache');
+stored = undefined;
+globalThis.fetch = async () => new Response('private upstream details', { status: 429 });
+const failed = await onRequestGet(context);
+assert.equal(failed.status, 503);
+assert.ok(!(await failed.text()).includes('private'));
+globalThis.fetch = async () => Response.json({ bitcoin: { usd: -1 } });
+assert.equal((await onRequestGet(context)).status, 503);
+globalThis.fetch = async () => { throw new Error('network'); };
+assert.equal((await onRequestGet(context)).status, 503);
+globalThis.fetch = async (url, options) => {
+    assert.equal(url.hostname, 'pro-api.coingecko.com');
+    assert.equal(options.headers['x-cg-pro-api-key'], 'test-only');
+    return Response.json(quotes);
+};
+assert.equal((await onRequestGet({ ...context, env: { ...context.env, COINGECKO_API_PLAN: 'pro' } })).status, 200);
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+for (const match of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
+const market = html.slice(html.indexOf('function updateMarket()'), html.indexOf('// AUDIO'));
+const sandbox = { ASSETS: [{ id: 'BTC', type: 'crypto', vol: 1 }, { id: 'TEST', type: 'tech', vol: 1 }], livePrices: { BTC: 42, TEST: 100 } };
+vm.runInNewContext(market + '\nupdateMarket();', sandbox);
+assert.equal(sandbox.livePrices.BTC, 42, 'simulation must never change crypto quotes');
+console.log('Crypto endpoint, cache, auth, error handling, script syntax, and simulation checks passed.');
